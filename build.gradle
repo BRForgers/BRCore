@@ -18,7 +18,7 @@ buildscript {
 apply plugin: 'forge'
 
 version = "1.0"
-group= "cf.brforgers.core" // http://maven.apache.org/guides/mini/guide-naming-conventions.html
+group= "cf.brforgers.core"
 archivesBaseName = "BRCore"
 
 minecraft {
@@ -28,12 +28,6 @@ minecraft {
 
 dependencies {}
 
-jar {
-    manifest {
-        attributes 'FMLCorePlugin': 'cf.brforgers.core.plugin.BRCorePlugin', 'FMLCorePluginContainsFMLMod': 'true'
-    }
-}
-
 task devJar(type: Jar) {
     classifier = 'dev'
     
@@ -42,6 +36,12 @@ task devJar(type: Jar) {
 }
 
 tasks.build.dependsOn('devJar')
+
+jar {
+    manifest {
+        attributes 'FMLCorePlugin': 'cf.brforgers.core.plugin.BRCorePlugin', 'FMLCorePluginContainsFMLMod': 'true'
+    }
+}
 
 processResources
 {
