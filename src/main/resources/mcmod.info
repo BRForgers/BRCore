@@ -1,15 +1,15 @@
 [
 {
-  "modid": "examplemod",
-  "name": "Example Mod",
-  "description": "Example placeholder mod.",
+  "modid": "BRCore",
+  "name": "BRCore",
+  "description": "Libs, Mod-Sharing Classes and Variables, Some Addons and Tweaks Modules. A Bit of everything!",
   "version": "${version}",
   "mcversion": "${mcversion}",
-  "url": "",
+  "url": "http://brforgers.cf/",
   "updateUrl": "",
-  "authorList": ["ExampleDude"],
-  "credits": "The Forge and FML guys, for making this example",
-  "logoFile": "",
+  "authorList": ["BRForgers Team"],
+  "credits": "",
+  "logoFile": "/BRCore.png",
   "screenshots": [],
   "dependencies": []
 }
