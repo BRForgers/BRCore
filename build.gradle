@@ -29,6 +29,7 @@ minecraft {
 dependencies {}
 
 task devJar(type: Jar) {
+	classifier = 'dev'
     from sourceSets.main.output
     from 'src/main/java/' //I hate myself for this
 }
