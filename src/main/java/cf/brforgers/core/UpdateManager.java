@@ -7,8 +7,7 @@ import java.util.regex.Pattern;
 import org.apache.logging.log4j.Logger;
 
 import cf.brforgers.core.lib.IOHelper;
-import cf.brforgers.core.lib.ModHelper;
-import cf.brforgers.core.lib.RandomUtils;
+import cf.brforgers.core.lib.Utils;
 import cf.brforgers.core.lib.SilentLogger;
 import cpw.mods.fml.client.FMLClientHandler;
 import cpw.mods.fml.common.FMLCommonHandler;
@@ -114,7 +113,7 @@ public class UpdateManager  implements Runnable {
 				.replaceAll("%URL%", entry.updateUrl);
 		
 		if (removeFormattingCodes)
-			str = (str == null) ? null : RandomUtils.removeFormatting(str);
+			str = (str == null) ? null : Utils.removeFormatting(str);
 		
 		return str;
 	}
@@ -221,8 +220,8 @@ public class UpdateManager  implements Runnable {
 	
 	static
 	{
-		if (ModHelper.isClient())
-			ModHelper.addEventsToBus(new UpdateManager());
+		if (Utils.isClient())
+			Utils.addEventsToBus(new UpdateManager());
 	}
 	
 	//// //// ---  END MAIN CLASS  --- //// ////

@@ -1,11 +1,15 @@
 package cf.brforgers.core.lib;
 
 import java.io.File;
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.util.regex.Pattern;
 
 import cpw.mods.fml.common.FMLCommonHandler;
 import cpw.mods.fml.common.event.FMLPreInitializationEvent;
 import cpw.mods.fml.common.eventhandler.EventBus;
 import net.minecraft.client.Minecraft;
+import net.minecraft.item.ItemStack;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.common.config.Configuration;
 
@@ -13,7 +17,7 @@ import net.minecraftforge.common.config.Configuration;
  * A Common Helper Library for Mods
  * @author TheFreeHigh
  */
-public class ModHelper {
+public class Utils {
 	/**
 	 * Get if we're on Client-side
 	 * @return true when in client-side, and false if server-side
@@ -82,5 +86,34 @@ public class ModHelper {
 			fmlBus.register(event);
 			forgeBus.register(event);
 		}
+	}
+	
+	public static final Pattern formattingRemover = Pattern.compile("(?i)" + String.valueOf('\u00a7') + "[0-9A-FK-OR]");
+	
+	/**
+	 * Just in case anyone doesn't know where, I found this on {@link MinecraftForge} class
+	 * @param seed The Seed {@link ItemStack} to Be Dropped
+	 * @param chance The Chance to be Dropped (Wheat Seeds is 10)
+	 */
+	public static void addGrassSeed(ItemStack seed, int chance)
+	{
+		MinecraftForge.addGrassSeed(seed, chance);
+	}
+	
+	/**
+	 * Remove the Minecraft formatting
+	 * @param str Input String
+	 * @return Output String
+	 */
+	public static String removeFormatting(String str)
+	{
+		return formattingRemover.matcher(str).replaceAll("");
+	}
+	
+	public static URL newURL(String url) {
+		try {
+			return new URL(url);
+		} catch (MalformedURLException ignored) {}
+		return null;
 	}
 }

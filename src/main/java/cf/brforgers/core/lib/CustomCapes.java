@@ -44,14 +44,6 @@ import net.minecraftforge.common.MinecraftForge;
 public class CustomCapes {
 	public static Logger log = LogManager.getLogger("CustomCapes");
 	public static class Helper {
-		
-		public static URL newURL(String url) {
-			try {
-				return new URL(url);
-			} catch (MalformedURLException ignored) {}
-			return null;
-		}
-		
 		public static int roundToPowerOf2(int v)
 		{
 			v--;
@@ -222,7 +214,7 @@ public class CustomCapes {
 						{
 							cape = capeBuffer.get(capeUrl);
 						} else {
-							URL url = Helper.newURL(capeUrl);
+							URL url = Utils.newURL(capeUrl);
 							cape = new CustomCape(url);
 							capeBuffer.put(capeUrl, cape);
 						}
@@ -256,7 +248,7 @@ public class CustomCapes {
 	        	{
 	        		cape = capeBuffer.get(cape);
 	        	} else {
-	        		cape = new CustomCape(Helper.newURL(capeUrl));
+	        		cape = new CustomCape(Utils.newURL(capeUrl));
 	        		capeBuffer.put(capeUrl, cape);
 	        	}
 	        	

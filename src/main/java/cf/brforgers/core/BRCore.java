@@ -54,13 +54,13 @@ public class BRCore
 		logger.info("Okay! Start Loading...");
 		
 		/* Get Configs */
-		Configuration config = ModHelper.getConfig(e);
+		Configuration config = Utils.getConfig(e);
 		config.load();
 		
 		/// Start Modules ///
 		
 		/* If we're in Client, load Client Modules */
-		if (ModHelper.isClient())
+		if (Utils.isClient())
 		{			
 			boolean updaterEnabled = config.getBoolean("enabledUpdater", "ClientModules", true, "Enable or Disable the Mod Updater Indicator.");
 			UpdateManager.timeout = config.getInt("timecycleUpdater", "ClientModules", 300, 60, 1200, "Set the Timeout (in seconds) to the updater check to updates.") * 20;
@@ -76,9 +76,9 @@ public class BRCore
 		if(config.hasChanged())
 			config.save();
 		
-		logger.info("I think " + (ModHelper.isClient() ? "we're" : "I'm") + " done for now.");
-		if (ModHelper.isClient())
-			logger.info("Also, Thanks "+ ModHelper.getPlayerName() +", for playing with BRForgers Mods!");
+		logger.info("I think " + (Utils.isClient() ? "we're" : "I'm") + " done for now.");
+		if (Utils.isClient())
+			logger.info("Also, Thanks "+ Utils.getPlayerName() +", for playing with BRForgers Mods!");
 		
 		// I can't resist a Easter Egg..
 		FMLLog.info("Uhh, such a Strange Core Mod. Okay, next Mods...");
