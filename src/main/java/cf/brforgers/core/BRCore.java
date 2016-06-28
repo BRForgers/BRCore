@@ -5,6 +5,7 @@ import static cf.brforgers.core.Lib.*;
 import org.apache.logging.log4j.Logger;
 
 import cf.brforgers.core.lib.*;
+//import cf.brforgers.core.lib.client.Armor3DRenderer;
 import cpw.mods.fml.common.FMLLog;
 import cpw.mods.fml.common.Loader;
 import cpw.mods.fml.common.Mod;
@@ -61,7 +62,8 @@ public class BRCore
 		
 		/* If we're in Client, load Client Modules */
 		if (Utils.isClient())
-		{			
+		{
+			//Armor3DRenderer.RegisterVanillaArmors();
 			boolean updaterEnabled = config.getBoolean("enabledUpdater", "ClientModules", true, "Enable or Disable the Mod Updater Indicator.");
 			UpdateManager.timeout = config.getInt("timecycleUpdater", "ClientModules", 300, 60, 1200, "Set the Timeout (in seconds) to the updater check to updates.") * 20;
 		}
