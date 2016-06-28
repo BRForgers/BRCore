@@ -18,9 +18,9 @@ public class FastFactory {
 		return new FactoryBlock(defaultMaterial).setBlockName(name).setBlockTextureName(texturePrefix + name).setCreativeTab(defaultTab);
 	}
 	
-	public Block processBlock(Block block, String name)
+	public <BlockType extends Block> BlockType processBlock(BlockType block, String name)
 	{
-		return block.setBlockName(name).setBlockTextureName(texturePrefix + name).setCreativeTab(defaultTab);
+		return (BlockType) block.setBlockName(name).setBlockTextureName(texturePrefix + name).setCreativeTab(defaultTab);
 	}
 	
 	public Item newItem(String name)
@@ -28,9 +28,9 @@ public class FastFactory {
 		return new FactoryItem().setUnlocalizedName(name).setTextureName(texturePrefix + name).setCreativeTab(defaultTab);
 	}
 	
-	public Item processItem(Item item, String name)
+	public <ItemType extends Item> ItemType processItem(ItemType item, String name)
 	{
-		return item.setUnlocalizedName(name).setTextureName(texturePrefix + name).setCreativeTab(defaultTab);
+		return (ItemType) item.setUnlocalizedName(name).setTextureName(texturePrefix + name).setCreativeTab(defaultTab);
 	}
 	
 	public static FastFactory newFactory(CreativeTabs defaultTab, String texturePrefix, Material defaultMaterial) {
