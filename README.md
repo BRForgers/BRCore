@@ -1,10 +1,8 @@
 # BRCore
 
-Status: [![Build Status](https://drone.io/github.com/TheBrazillianForgersTeam/BRCore/status.png)](https://drone.io/github.com/TheBrazillianForgersTeam/BRCore/latest)
+Unstable builds: [Go to **Jenkings**](http://jenkins.cyberdynecc.com/job/BRCore/)
 
-Unstable builds: [Go to **drone.io**](https://drone.io/github.com/TheBrazillianForgersTeam/BRCore/files)
-
-License: [BRForgers **DBaJ**](https://github.com/TheBrazillianForgersTeam/BRCore/blob/master/LICENSE.md)
+License: [BRForgers **DBaJ**](https://github.com/BRForgers/BRCore/blob/master/LICENSE.md)
 
 ## Building the Core:
 Before start:
