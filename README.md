@@ -1,6 +1,6 @@
 # BRCore
 
-Unstable builds: [Go to **Jenkings**](http://jenkins.cyberdynecc.com/job/BRCore/)
+Unstable builds: [Go to **Jenkins**](http://jenkins.cyberdynecc.com/job/BRCore/)
 
 License: [BRForgers **DBaJ**](https://github.com/BRForgers/BRCore/blob/master/LICENSE.md)
 
