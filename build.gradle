@@ -1,3 +1,5 @@
+println "****************************"
+println " BRForgers GradleBuilding:"
 buildscript {
     repositories {
         mavenCentral()
@@ -17,47 +19,78 @@ buildscript {
 
 apply plugin: 'forge'
 
-version = "1.7.10-1.0-RC3"
 group= "cf.brforgers.core"
 archivesBaseName = "BRCore"
 
-minecraft {
-    version = "1.7.10-10.13.4.1614-1.7.10"
-    runDir = "eclipse"
+// Define properties file
+ext.configFile = file "build.properties"
+
+configFile.withReader {
+    // Load config.  It shall from now be referenced as simply config or project.config
+    def prop = new Properties()
+    prop.load(it)
+    project.ext.config = new ConfigSlurper().parse prop
 }
 
 dependencies {}
 
-task devJar(type: Jar) {
-	classifier = 'dev'
-    from sourceSets.main.output
-    from 'src/main/java/' //I hate myself for this
+version = "${project.config.mod_version}" + (System.getenv("BUILD_NUMBER") != null ? "-build" + System.getenv("BUILD_NUMBER") : "")
+
+println " Minecraft: " + config.mc_version + "-" + config.forge_version
+// Setup the forge minecraft plugin data. Specify the preferred forge/minecraft version here
+minecraft {
+    version = config.mc_version + "-" + config.forge_version
+    runDir = "eclipse"
 }
 
-tasks.build.dependsOn('devJar')
-
-jar {
-    manifest {
-        attributes 'FMLCorePlugin': 'cf.brforgers.core.plugin.BRCorePlugin', 'FMLCorePluginContainsFMLMod': 'true'
-    }
-}
-
-processResources
-{
+processResources {
     // this will ensure that this task is redone when the versions change.
     inputs.property "version", project.version
-    inputs.property "mcversion", project.minecraft.version
+    inputs.property "mc_version", config.mc_version
+    //inputs.property "ccl_version", config.ccl_version
 
-    // replace stuff in mcmod.info, nothing else
+    // Replace properties in info files
     from(sourceSets.main.resources.srcDirs) {
-        include 'mcmod.info'
-                
-        // replace version and mcversion
-        expand 'version':project.version, 'mcversion':project.minecraft.version
+        include '*.info'
+        expand 'version': project.version, 'mc_version': config.mc_version//,'ccl_version':config.ccl_version
     }
-        
-    // copy everything else, thats not the mcmod.info
-    from(sourceSets.main.resources.srcDirs) {
-        exclude 'mcmod.info'
-    }
+
+    // Move access transformer to META-INF
+    rename '(.+_at.cfg)', 'META-INF/$1'
+}
+
+version = "${project.minecraft.version}-${project.version}"
+
+println " Building: ${archivesBaseName} v${version}"
+
+idea.module.inheritOutputDirs = true
+
+def commonManifest = {
+    attributes 'FMLCorePlugin': 'cf.brforgers.core.plugin.BRCorePlugin'
+    attributes 'FMLAT': 'ccc_at.cfg'
+}
+
+jar {
+    //classifier = 'universal'
+    manifest commonManifest
+    //into('lib') {
+    //    from configurations.obfLibs
+    //}
+}
+
+//task sourceJar(type: Jar) {
+//    from sourceSets.main.java
+//    classifier = 'src'
+//}
+
+task devJar(type: Jar) {
+    from sourceSets.main.java
+    from sourceSets.main.output
+    classifier = 'dev'
+    manifest commonManifest
+}
+
+// Tell the artifact system about our extra jars
+artifacts {
+    archives devJar//, sourceJar
 }

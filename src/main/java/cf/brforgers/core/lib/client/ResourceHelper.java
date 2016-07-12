@@ -1,11 +1,15 @@
 package cf.brforgers.core.lib.client;
 
-import java.util.HashMap;
-import java.util.Map;
-
+import cpw.mods.fml.relauncher.Side;
+import cpw.mods.fml.relauncher.SideOnly;
 import net.minecraft.client.Minecraft;
 import net.minecraft.util.ResourceLocation;
 
+import java.util.HashMap;
+import java.util.Map;
+
+
+@SideOnly(Side.CLIENT)
 public class ResourceHelper {
     private static Map<String, ResourceLocation> cachedResources = new HashMap<String, ResourceLocation>();
     

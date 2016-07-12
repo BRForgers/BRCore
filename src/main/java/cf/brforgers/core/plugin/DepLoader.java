@@ -3,23 +3,13 @@ package cf.brforgers.core.plugin;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
-
 import cpw.mods.fml.common.asm.transformers.ModAccessTransformer;
 import cpw.mods.fml.common.versioning.ComparableVersion;
-import cpw.mods.fml.relauncher.CoreModManager;
-import cpw.mods.fml.relauncher.FMLInjectionData;
-import cpw.mods.fml.relauncher.FMLLaunchHandler;
-import cpw.mods.fml.relauncher.FMLRelaunchLog;
-import cpw.mods.fml.relauncher.IFMLCallHook;
-import cpw.mods.fml.relauncher.IFMLLoadingPlugin;
-//import net.minecraftforge.fml.common.asm.transformers.ModAccessTransformer;
-//import net.minecraftforge.fml.common.versioning.ComparableVersion;
-//import net.minecraftforge.fml.relauncher.*;
+import cpw.mods.fml.relauncher.*;
 import net.minecraft.launchwrapper.LaunchClassLoader;
 import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-
 import sun.misc.URLClassPath;
 import sun.net.util.URLUtil;
 
@@ -50,17 +40,75 @@ import java.util.regex.PatternSyntaxException;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 
+//import net.minecraftforge.fml.common.asm.transformers.ModAccessTransformer;
+//import net.minecraftforge.fml.common.versioning.ComparableVersion;
+//import net.minecraftforge.fml.relauncher.*;
+
 /**
  * For autodownloading stuff.
  * This is really unoriginal, mostly ripped off FML, credits to cpw.
  */
 @SuppressWarnings("unchecked")
 public class DepLoader implements IFMLLoadingPlugin, IFMLCallHook {
-	// Static things >.>
-    private static ByteBuffer downloadBuffer = ByteBuffer.allocateDirect(1 << 23);
     private static final String owner = "BRForgers' DepLoader";
-    private static DepLoadInst inst;
     private static final Logger logger = LogManager.getLogger(owner);
+    // Static things >.>
+    private static ByteBuffer downloadBuffer = ByteBuffer.allocateDirect(1 << 23);
+    private static DepLoadInst inst;
+
+    public static void load() {
+        if (inst == null) {
+            inst = new DepLoadInst();
+            inst.load();
+        }
+    }
+
+    @Override
+    public String[] getASMTransformerClass() {
+        return null;
+    }
+
+    @Override
+    public String getModContainerClass() {
+        return null;
+    }
+
+    @Override
+    public String getSetupClass() {
+        return getClass().getName();
+    }
+
+    @Override
+    public void injectData(Map<String, Object> data) {
+    }
+
+    @Override
+    public Void call() {
+        load();
+
+        return null;
+    }
+
+    @Override
+    public String getAccessTransformerClass() {
+        return null;
+    }
+
+    public interface IDownloadDisplay {
+        void resetProgress(int sizeGuess);
+
+        void setPokeThread(Thread currentThread);
+
+        void updateProgress(int fullLength);
+
+        boolean shouldStopIt();
+
+        void updateProgressString(String string, Object... data);
+
+        Object makeDialog();
+
+        void showErrorDialog(String name, String url);
+    }
 
     public static class VersionedFile
     {
@@ -122,29 +170,13 @@ public class DepLoader implements IFMLLoadingPlugin, IFMLCallHook {
         }
     }
 
-    public interface IDownloadDisplay {
-        void resetProgress(int sizeGuess);
-
-        void setPokeThread(Thread currentThread);
-
-        void updateProgress(int fullLength);
-
-        boolean shouldStopIt();
-
-        void updateProgressString(String string, Object... data);
-
-        Object makeDialog();
-
-        void showErrorDialog(String name, String url);
-    }
-
     @SuppressWarnings("serial")
     public static class Downloader extends JOptionPane implements IDownloadDisplay {
+        boolean stopIt;
+        Thread pokeThread;
         private JDialog container;
         private JLabel currentActivity;
         private JProgressBar progress;
-        boolean stopIt;
-        Thread pokeThread;
 
         private Box makeProgressPanel() {
             Box box = Box.createVerticalBox();
@@ -688,43 +720,5 @@ public class DepLoader implements IFMLLoadingPlugin, IFMLCallHook {
                 }
             }
         }
-    }
-
-    public static void load() {
-        if (inst == null) {
-            inst = new DepLoadInst();
-            inst.load();
-        }
-    }
-
-    @Override
-    public String[] getASMTransformerClass() {
-        return null;
-    }
-
-    @Override
-    public String getModContainerClass() {
-        return null;
-    }
-
-    @Override
-    public String getSetupClass() {
-        return getClass().getName();
-    }
-
-    @Override
-    public void injectData(Map<String, Object> data) {
-    }
-
-    @Override
-    public Void call() {
-        load();
-
-        return null;
-    }
-
-    @Override
-    public String getAccessTransformerClass() {
-        return null;
     }
 }

@@ -1,10 +1,6 @@
 package cf.brforgers.core.lib;
 
-import java.io.File;
-import java.net.MalformedURLException;
-import java.net.URL;
-import java.util.regex.Pattern;
-
+import cf.brforgers.core.lib.utils.PRunnable;
 import cpw.mods.fml.common.FMLCommonHandler;
 import cpw.mods.fml.common.event.FMLPreInitializationEvent;
 import cpw.mods.fml.common.eventhandler.EventBus;
@@ -13,11 +9,54 @@ import net.minecraft.item.ItemStack;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.common.config.Configuration;
 
+import java.io.File;
+import java.lang.reflect.Field;
+import java.lang.reflect.Modifier;
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.util.*;
+import java.util.regex.Pattern;
+
 /**
  * A Common Helper Library for Mods
  * @author TheFreeHigh
  */
 public class Utils {
+	public static final Pattern formattingRemover = Pattern.compile("(?i)" + String.valueOf('\u00a7') + "[0-9A-FK-OR]");
+
+	public static <T> Map<String, Object> asMap(Class<? extends T> clazz, T inst) {
+		Map<String, Object> result = new HashMap<String, Object>();
+		Field[] declaredFields = getAllFields(clazz);
+		for (Field field : declaredFields) {
+			try {
+				if (!Modifier.isTransient(field.getModifiers())) {
+					field.setAccessible(true);
+					result.put(field.getName(), field.get(inst));
+				}
+			} catch (Exception e) {
+			}
+		}
+		return result;
+	}
+
+	public static Field[] getAllFields(Class aClass) {
+		List<Field> fields = new ArrayList<Field>();
+		do {
+			Collections.addAll(fields, aClass.getDeclaredFields());
+			aClass = aClass.getSuperclass();
+		} while (aClass != null && aClass != Object.class);
+		return fields.toArray(new Field[fields.size()]);
+	}
+
+	public static <P> PRunnable<P> toPRunnable(final java.lang.Runnable runnable, Class<P> type) {
+		return new PRunnable<P>() {
+			@Override
+			public void run(P parameter) {
+				runnable.run();
+			}
+		};
+	}
+	
 	/**
 	 * Get if we're on Client-side
 	 * @return true when in client-side, and false if server-side
@@ -54,7 +93,7 @@ public class Utils {
 	{
 		return new Configuration(new File(pathname));
 	}
-	
+
 	/**
 	 * Get an Config File from the File
 	 * @param file the File
@@ -74,8 +113,8 @@ public class Utils {
     {
     	return new Configuration(event.getSuggestedConfigurationFile());
     }
-    
-    /**
+
+	/**
      * It add all events to the FML and Forge Bus (Lazy way)
      * @param events The Events
      */
@@ -87,8 +126,6 @@ public class Utils {
 			forgeBus.register(event);
 		}
 	}
-	
-	public static final Pattern formattingRemover = Pattern.compile("(?i)" + String.valueOf('\u00a7') + "[0-9A-FK-OR]");
 	
 	/**
 	 * Just in case anyone doesn't know where, I found this on {@link MinecraftForge} class

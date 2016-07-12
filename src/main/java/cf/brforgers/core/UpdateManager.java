@@ -1,31 +1,176 @@
 package cf.brforgers.core;
 
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.regex.Pattern;
-
-import org.apache.logging.log4j.Logger;
-
 import cf.brforgers.core.lib.IOHelper;
 import cf.brforgers.core.lib.Utils;
-import cf.brforgers.core.lib.SilentLogger;
-import cpw.mods.fml.client.FMLClientHandler;
-import cpw.mods.fml.common.FMLCommonHandler;
-import cpw.mods.fml.common.eventhandler.SubscribeEvent;
-import cpw.mods.fml.common.gameevent.PlayerEvent;
-import cpw.mods.fml.common.gameevent.TickEvent;
-import cpw.mods.fml.relauncher.Side;
+import cf.brforgers.core.lib.batch.TickBatchExecutor;
+import cf.brforgers.core.lib.utils.AsyncTask;
+import cf.brforgers.core.lib.utils.PRunnable;
+import net.minecraft.client.Minecraft;
 import net.minecraft.util.ChatComponentText;
 import net.minecraft.util.EnumChatFormatting;
-import net.minecraftforge.common.MinecraftForge;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.concurrent.Callable;
 
 /**
  * A rewrite of the Update Manager. It's now a Lot cleaner.
  * @author TheFreeHigh
  *
  */
-public class UpdateManager  implements Runnable {
+public class UpdateManager implements Runnable {
 	//// //// --- BEGIN HELPERCLASSES --- //// ////
+
+	public static final String[] DEFAULT_MESSAGES = {
+			"Failed to connect to check if update is available.",
+			"%MODNAME% is updated.",
+			"%MODNAME% is outdated. You are running version \"%CURVERSION%\" and the latest available version is \"%NEWVERSION%\""
+	};
+	private static final TickBatchExecutor.Client batchExecutor = new TickBatchExecutor.Client();
+	public static boolean enabled = true;
+
+	//// //// --- END HELPERCLASSES --- //// ////
+	//// //// ---  BEGIN MAIN CLASS  --- //// ////
+	public static int timeout = 6000;
+	private static List<UpdateEntry> updateEntries = new ArrayList<UpdateEntry>();
+
+	static {
+		if (Utils.isClient() && enabled) {
+			Utils.addEventsToBus(batchExecutor);
+			batchExecutor.AddRunnablesToThisTick(new UpdateManager());
+			batchExecutor.runOnTickStart = false;
+
+		}
+
+	}
+
+	private int runsInProgress = 0;
+	private int threadCount = 0;
+	private int tickCountdown = 0;
+
+	private UpdateManager() {
+	}
+
+	private static String parseString(String str, UpdateEntry entry, boolean removeFormattingCodes) {
+		str = str
+				.replaceAll("%MODNAME%", entry.modname)
+				.replaceAll("%CURVERSION%", entry.currentVersion)
+				.replaceAll("%NEWVERSION%", entry.updatedVersion)
+				.replaceAll("%URL%", entry.updateUrl);
+
+		if (removeFormattingCodes)
+			str = (str == null) ? null : Utils.removeFormatting(str);
+
+		return str;
+	}
+
+	public static void addToUpdateChecker(String modid, String modname, String updateUrl, String currentVersion, String[] messages) {
+		UpdateEntry newEntry = new UpdateEntry();
+		newEntry.modname = modname;
+		newEntry.modid = modid;
+		newEntry.updateUrl = updateUrl;
+		newEntry.currentVersion = currentVersion;
+		newEntry.messages = messages;
+
+		updateEntries.add(newEntry);
+	}
+
+	public static UpdateStatus retrieveStatus(String modid) {
+		for (UpdateEntry eachEntry : updateEntries)
+			if (eachEntry.modid.equals(modid))
+				return eachEntry.status;
+
+		return null;
+	}
+
+	//// //// ---  END MAIN CLASS  --- //// ////
+	//// //// ---  BEGIN REGISTER METHODS  --- //// ////
+
+	public static void addToUpdateChecker(String modid, String modname, String updateUrl, String currentVersion) {
+		addToUpdateChecker(modid, modname, updateUrl, currentVersion, DEFAULT_MESSAGES);
+	}
+
+	public void run() {
+		if (tickCountdown == 0) {
+			tickCountdown = timeout;
+			threadCount++;
+			batchExecutor.AddRunnablesToNextTick(new Runnable() {
+				@Override
+				public void run() {
+					for (final UpdateEntry eachEntry : updateEntries) {
+						runsInProgress++;
+						batchExecutor.AddRunnablesToThisTick(new Runnable() {
+							@Override
+							public void run() {
+								new AsyncTask<String>(new Callable<String>() {
+									@Override
+									public String call() throws Exception {
+										return IOHelper.toString(eachEntry.updateUrl);
+									}
+								}).SetFinishTrigger(new PRunnable<String>() {
+									@Override
+									public void run(final String parameter) {
+										synchronized (batchExecutor) {
+											batchExecutor.AddRunnablesToThisTick(new Runnable() {
+												@Override
+												public void run() {
+													if (parameter == null) {
+														eachEntry.status = UpdateStatus.CANTCONNECT;
+													} else {
+										/* Nice little Fix for removing Tabs and New Lines */
+														String newestVersion = parameter.replaceAll("[\\\t|\\\n|\\\r]", "");
+
+														eachEntry.updatedVersion = newestVersion;
+
+														if (newestVersion.equalsIgnoreCase(eachEntry.currentVersion)) {
+															eachEntry.status = UpdateStatus.UPDATED;
+														} else if (eachEntry.status != UpdateStatus.OUTDATED) {
+															eachEntry.status = UpdateStatus.OUTDATED;
+														}
+													}
+													runsInProgress--;
+													if (runsInProgress == 0) {
+														batchExecutor.AddRunnablesToThisTick(new Runnable() {
+															@Override
+															public void run() {
+																if (Minecraft.getMinecraft().thePlayer == null) {
+																	batchExecutor.AddRunnablesToNextTick(this);
+																	return;
+																}
+																boolean outdatedMods = false;
+																for (UpdateEntry entry : updateEntries) {
+																	if (!entry.announced && entry.status == UpdateStatus.OUTDATED) {
+																		entry.announced = true;
+																		if (!outdatedMods) {
+																			Minecraft.getMinecraft().thePlayer.addChatMessage(new ChatComponentText(EnumChatFormatting.AQUA + "" + EnumChatFormatting.BOLD + "The Following mods are Outdated:"));
+																			outdatedMods = true;
+																		}
+																		Minecraft.getMinecraft().thePlayer.addChatMessage(new ChatComponentText(
+																				EnumChatFormatting.GRAY + "> "
+																						+ EnumChatFormatting.WHITE + entry.modname
+																						+ EnumChatFormatting.WHITE + ": v" + EnumChatFormatting.BOLD + entry.updatedVersion
+																						+ EnumChatFormatting.GRAY + " (Currently v" + EnumChatFormatting.BOLD + entry.currentVersion + EnumChatFormatting.RESET + ")"
+																		));
+																	}
+																}
+															}
+														});
+													}
+												}
+											});
+										}
+									}
+								});
+							}
+						});
+					}
+				}
+			});
+		} else {
+			tickCountdown--;
+		}
+		batchExecutor.AddRunnablesToThisTick(this);
+	}
 	
 	/**
 	 * Update Status Enumerator
@@ -46,11 +191,8 @@ public class UpdateManager  implements Runnable {
 		CANTCONNECT(true);
 
 		/**Defines if the Mod is Updated.*/
-		public boolean updated = false;
-		
-		/**Mod Version*/
-		public String version = "";
-		
+		public final boolean updated;
+
 		/**
 		 * Constructor
 		 * @param updated Updated Variable
@@ -58,32 +200,15 @@ public class UpdateManager  implements Runnable {
 		UpdateStatus(boolean updated) {
 			this.updated = updated;
 		}
-		
-		/**
-		 * Set current Version
-		 * @param version The Current Version found
-		 * @return Itself, for Constructing
-		 */
-		public UpdateStatus setVersion(String version)
-		{
-			this.version = version;
-			return this;
-		}
-		
-		/**
-		 * Get the Current Version
-		 * @return Version variable
-		 */
-		public String getVersion()
-		{
-			return version;
-		}
-		
+
 		public boolean isUpdated()
 		{
 			return this.updated;
 		}
 	}
+
+	//// //// ---  END REGISTER METHODS  --- //// ////
+	//// //// ---  BEGIN SHORTER METHODS  --- //// ////
 	
 	/**
 	 * Don't care about it.
@@ -97,196 +222,10 @@ public class UpdateManager  implements Runnable {
 		public String modid = null;
 		public String updateUrl = null;
 		public String currentVersion = null;
+		public String updatedVersion = null;
 		public UpdateStatus status = UpdateStatus.UNCHECKED;
-		public Logger modLogger = new SilentLogger();
-		public boolean announce = false;
 		public String[] messages = DEFAULT_MESSAGES;
-	}
-	
-	
-	private static String parseString(String str, UpdateEntry entry, boolean removeFormattingCodes)
-	{
-		str = str
-				.replaceAll("%MODNAME%", entry.modname)
-				.replaceAll("%CURVERSION%", entry.currentVersion)
-				.replaceAll("%NEWVERSION%", entry.status.getVersion())
-				.replaceAll("%URL%", entry.updateUrl);
-		
-		if (removeFormattingCodes)
-			str = (str == null) ? null : Utils.removeFormatting(str);
-		
-		return str;
-	}
-	
-	//// //// --- END HELPERCLASSES --- //// ////
-	//// //// ---  BEGIN MAIN CLASS  --- //// ////
-	
-	private UpdateManager() {}
-	private static ArrayList<UpdateEntry> announceableEntries = new ArrayList<UpdateEntry>(), updateEntries = new ArrayList<UpdateEntry>();
-	private boolean runFinished = false;
-	public static int timeout = 6000;
-	private int threadCount = 0;
-	private int tickCountdown = 0;
-	
-	@SubscribeEvent
-	public void onClientPlayerTick(TickEvent.PlayerTickEvent event) {
-		if (event.side != Side.CLIENT) return;
-		
-		//BRForgersCore.logger.info("Ticks left: "+tickCount);
-		if(tickCountdown == 0)
-		{
-			tickCountdown = timeout;
-			threadCount++;
-			new Thread (this, "UpdateThread-"+threadCount).start();
-		} else {
-			tickCountdown--;
-		}
-		
-		if(!runFinished) return;
-		
-		runFinished = false;
-		
-		//BRForgersCore.logger.info("THREAD RUN FINISHED");
-         
-		boolean outdatedMods = false;
-		for (UpdateEntry entry : announceableEntries)
-		{
-			if (entry.status == UpdateStatus.OUTDATED)
-			{
-				if (outdatedMods == false)
-				{
-					event.player.addChatMessage(new ChatComponentText(EnumChatFormatting.AQUA + "" + EnumChatFormatting.BOLD + "The Following mods are Outdated:"));
-					outdatedMods = true;
-				}
-				
-				event.player.addChatMessage(new ChatComponentText(
-						EnumChatFormatting.GRAY + "> "
-						+ EnumChatFormatting.WHITE + entry.modname
-						+ EnumChatFormatting.WHITE + ": v" + EnumChatFormatting.BOLD + entry.status.version
-						+ EnumChatFormatting.GRAY + " (Currently v" + EnumChatFormatting.BOLD + entry.currentVersion + EnumChatFormatting.RESET + ")"
-				));
-			}
-		}
-	}
-
-	@Override
-	public void run() {
-		
-		ArrayList<UpdateEntry> newEntries = new ArrayList<UpdateEntry>();
-		ArrayList<UpdateEntry> newAnnounceableEntries = new ArrayList<UpdateEntry>();
-		
-		for (UpdateEntry eachEntry: updateEntries)
-		{
-			try {
-				String newestVersion = IOHelper.toString(eachEntry.updateUrl);
-				
-				if (newestVersion == null)
-				{
-					eachEntry.modLogger.error(parseString(eachEntry.messages[0],eachEntry,true));
-					eachEntry.status = UpdateStatus.CANTCONNECT;
-					//newEntries.add(eachEntry);
-				}
-				else
-				{
-					/* Nice little Fix for removing Tabs and New Lines */
-					newestVersion = newestVersion.replaceAll("[\\\t|\\\n|\\\r]","");
-				
-					if(newestVersion.equalsIgnoreCase(eachEntry.currentVersion))
-					{
-						eachEntry.status = UpdateStatus.UPDATED.setVersion(newestVersion);
-						eachEntry.modLogger.info(parseString(eachEntry.messages[1],eachEntry,true));
-						//newEntries.add(eachEntry);
-					} else if(eachEntry.status != UpdateStatus.OUTDATED)
-					{
-						newAnnounceableEntries.add(eachEntry);
-						eachEntry.status = UpdateStatus.OUTDATED.setVersion(newestVersion);
-						eachEntry.modLogger.info(parseString(eachEntry.messages[2],eachEntry,true));
-					}
-				}
-			}catch (IOException e)
-			{
-				eachEntry.status = UpdateStatus.CANTCONNECT;
-				eachEntry.modLogger.error(parseString(eachEntry.messages[0],eachEntry,true), e);
-				//newEntries.add(eachEntry);
-			}
-			
-			newEntries.add(eachEntry);
-		}
-		
-		updateEntries = newEntries;
-		announceableEntries = newAnnounceableEntries;
-		runFinished = true;
-	}
-	
-	static
-	{
-		if (Utils.isClient())
-			Utils.addEventsToBus(new UpdateManager());
-	}
-	
-	//// //// ---  END MAIN CLASS  --- //// ////
-	//// //// ---  BEGIN REGISTER METHODS  --- //// ////
-	
-	public static final String[] DEFAULT_MESSAGES = {
-			"Failed to connect to check if update is available.",
-			"%MODNAME% is updated.",
-			"%MODNAME% is outdated. You are running version \"%CURVERSION%\" and the latest available version is \"%NEWVERSION%\""
-	};
-	
-	public static void addToUpdateChecker(String modid, String modname, String updateUrl, String currentVersion, Logger logger, boolean announce, String[] messages)
-	{
-		UpdateEntry newEntry = new UpdateEntry();
-		newEntry.modname = modname;
-		newEntry.modid = modid;
-		newEntry.updateUrl = updateUrl;
-		newEntry.currentVersion = currentVersion;
-		newEntry.modLogger = logger;
-		newEntry.announce = announce;
-		newEntry.messages = messages;
-		
-		updateEntries.add(newEntry);
-	}
-	
-	public static UpdateStatus retrieveStatus(String modid)
-	{
-		for (UpdateEntry eachEntry : updateEntries)
-			if (eachEntry.modid.equals(modid))
-				return eachEntry.status;
-		
-		return null;
-	}
-	
-	//// //// ---  END REGISTER METHODS  --- //// ////
-	//// //// ---  BEGIN SHORTER METHODS  --- //// ////
-	
-	public static void addToUpdateChecker(String modid, String modname, String updateUrl, String currentVersion)
-	{
-		addToUpdateChecker(modid, modname, updateUrl, currentVersion, BRCore.logger, true, DEFAULT_MESSAGES);
-	}
-	
-	public static void addToUpdateChecker(String modid, String modname, String updateUrl, String currentVersion, boolean announce)
-	{
-		addToUpdateChecker(modid, modname, updateUrl, currentVersion, BRCore.logger, announce, DEFAULT_MESSAGES);
-	}
-	
-	public static void addToUpdateChecker(String modid, String modname, String updateUrl, String currentVersion, boolean announce, String[] messages)
-	{
-		addToUpdateChecker(modid, modname, updateUrl, currentVersion, BRCore.logger, announce, messages);
-	}
-	
-	public static void addToUpdateChecker(String modid, String modname, String updateUrl, String currentVersion, Logger logger)
-	{
-		addToUpdateChecker(modid, modname, updateUrl, currentVersion, logger, true, DEFAULT_MESSAGES);
-	}
-	
-	public static void addToUpdateChecker(String modid, String modname, String updateUrl, String currentVersion, Logger logger, String[] messages)
-	{
-		addToUpdateChecker(modid, modname, updateUrl, currentVersion, logger, true, messages);
-	}
-	
-	public static void addToUpdateChecker(String modid, String modname, String updateUrl, String currentVersion, Logger logger, boolean announce)
-	{
-		addToUpdateChecker(modid, modname, updateUrl, currentVersion, logger, announce, DEFAULT_MESSAGES);
+		public boolean announced = false;
 	}
 
 	//// //// ---  END SHORTER METHODS  --- //// ////

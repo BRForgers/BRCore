@@ -1,19 +1,14 @@
 package cf.brforgers.core.plugin;
 
-import java.awt.Desktop;
-import java.io.File;
-import java.lang.reflect.Constructor;
-import java.lang.reflect.Field;
-import java.util.List;
-import java.util.Map;
-import java.util.jar.Attributes;
-import java.util.jar.JarFile;
-import java.util.jar.Manifest;
+import cpw.mods.fml.relauncher.FMLInjectionData;
+import cpw.mods.fml.relauncher.IFMLCallHook;
+import cpw.mods.fml.relauncher.IFMLLoadingPlugin;
+import cpw.mods.fml.relauncher.IFMLLoadingPlugin.TransformerExclusions;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
-import javax.swing.JEditorPane;
-import javax.swing.JOptionPane;
-import javax.swing.event.HyperlinkEvent;
-import javax.swing.event.HyperlinkListener;
+import java.io.File;
+import java.util.Map;
 
 //import net.minecraftforge.fml.relauncher.CoreModManager;
 //
@@ -23,15 +18,8 @@ import javax.swing.event.HyperlinkListener;
 //import net.minecraftforge.fml.relauncher.IFMLCallHook;
 //import net.minecraftforge.fml.relauncher.IFMLLoadingPlugin;
 //import net.minecraftforge.fml.relauncher.IFMLLoadingPlugin.TransformerExclusions;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 
-import cpw.mods.fml.relauncher.FMLInjectionData;
-import cpw.mods.fml.relauncher.IFMLCallHook;
-import cpw.mods.fml.relauncher.IFMLLoadingPlugin;
-import cpw.mods.fml.relauncher.IFMLLoadingPlugin.TransformerExclusions;
-
-@TransformerExclusions(value = {"brforgers.core.plugin"})
+@TransformerExclusions(value = {"cf.brforgers.core.plugin"})
 public class BRCorePlugin implements IFMLLoadingPlugin, IFMLCallHook
 {
     public static final String mcVersion = "[1.7.10]";
@@ -65,7 +53,7 @@ public class BRCorePlugin implements IFMLLoadingPlugin, IFMLCallHook
 
 	@Override
 	public String getModContainerClass() {
-		return null;
+		return "cf.brforgers.core.BRCore";
 	}
 
     @Override

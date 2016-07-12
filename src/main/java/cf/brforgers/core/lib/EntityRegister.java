@@ -1,6 +1,5 @@
 package cf.brforgers.core.lib;
 
-import cf.brforgers.core.BRCore;
 import cpw.mods.fml.common.registry.EntityRegistry;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityList;

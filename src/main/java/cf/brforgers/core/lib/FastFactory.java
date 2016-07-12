@@ -6,16 +6,28 @@ import net.minecraft.creativetab.CreativeTabs;
 import net.minecraft.item.Item;
 
 public class FastFactory {
-	public static class FactoryBlock extends Block {protected FactoryBlock(Material mat) {super(mat);}}
-	public static class FactoryItem extends Item {protected FactoryItem(){}}
-	
 	public CreativeTabs defaultTab;
 	public String texturePrefix;
 	public Material defaultMaterial;
 
+	private FastFactory() {
+	}
+
+	public static FastFactory newFactory(CreativeTabs defaultTab, String texturePrefix, Material defaultMaterial) {
+		FastFactory f = new FastFactory();
+		f.defaultTab = defaultTab;
+		f.texturePrefix = texturePrefix;
+		f.defaultMaterial = defaultMaterial;
+		return f;
+	}
+
 	public Block newBlock(String name)
 	{
 		return new FactoryBlock(defaultMaterial).setBlockName(name).setBlockTextureName(texturePrefix + name).setCreativeTab(defaultTab);
+	}
+
+	public Block newBlock(String name, Material material) {
+		return new FactoryBlock(material).setBlockName(name).setBlockTextureName(texturePrefix + name).setCreativeTab(defaultTab);
 	}
 	
 	public <BlockType extends Block> BlockType processBlock(BlockType block, String name)
@@ -32,13 +44,15 @@ public class FastFactory {
 	{
 		return (ItemType) item.setUnlocalizedName(name).setTextureName(texturePrefix + name).setCreativeTab(defaultTab);
 	}
-	
-	public static FastFactory newFactory(CreativeTabs defaultTab, String texturePrefix, Material defaultMaterial) {
-		FastFactory f = new FastFactory();
-		f.defaultTab = defaultTab;
-		f.texturePrefix = texturePrefix;
-		f.defaultMaterial = defaultMaterial;
-		return f;
+
+	public static class FactoryBlock extends Block {
+		protected FactoryBlock(Material mat) {
+			super(mat);
+		}
 	}
-	private FastFactory() {}
+
+	public static class FactoryItem extends Item {
+		protected FactoryItem() {
+		}
+	}
 }

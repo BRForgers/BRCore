@@ -39,7 +39,7 @@ public class Lib
 	/**
 	 * URL to Check for Updates
 	 */
-	public static final String UPDATEURL = "https://raw.githubusercontent.com/TheBrazillianForgersTeam/BRCore/master/latest.txt";
+	public static final String UPDATEURL = "https://raw.githubusercontent.com/BRForgers/Versioning/master/BRCore_1.7.10.txt";
 	
 	/* Add dependences="required-after:BRForgersCore@[2.1,)" in @Mod(...) to make the mod dependent on BRForgersCore */
 }
