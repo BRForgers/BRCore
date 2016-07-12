@@ -2,19 +2,14 @@ package cf.brforgers.core.lib;
 
 import cf.brforgers.core.lib.utils.PRunnable;
 import cpw.mods.fml.common.FMLCommonHandler;
-import cpw.mods.fml.common.event.FMLPreInitializationEvent;
 import cpw.mods.fml.common.eventhandler.EventBus;
+import cpw.mods.fml.relauncher.Side;
+import cpw.mods.fml.relauncher.SideOnly;
 import net.minecraft.client.Minecraft;
-import net.minecraft.item.ItemStack;
 import net.minecraftforge.common.MinecraftForge;
-import net.minecraftforge.common.config.Configuration;
 
-import java.io.File;
-import java.lang.reflect.Field;
-import java.lang.reflect.Modifier;
-import java.net.MalformedURLException;
-import java.net.URL;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.regex.Pattern;
 
 /**
@@ -23,31 +18,11 @@ import java.util.regex.Pattern;
  */
 public class Utils {
 	public static final Pattern formattingRemover = Pattern.compile("(?i)" + String.valueOf('\u00a7') + "[0-9A-FK-OR]");
-
-	public static <T> Map<String, Object> asMap(Class<? extends T> clazz, T inst) {
-		Map<String, Object> result = new HashMap<String, Object>();
-		Field[] declaredFields = getAllFields(clazz);
-		for (Field field : declaredFields) {
-			try {
-				if (!Modifier.isTransient(field.getModifiers())) {
-					field.setAccessible(true);
-					result.put(field.getName(), field.get(inst));
-				}
-			} catch (Exception e) {
-			}
-		}
-		return result;
-	}
-
-	public static Field[] getAllFields(Class aClass) {
-		List<Field> fields = new ArrayList<Field>();
-		do {
-			Collections.addAll(fields, aClass.getDeclaredFields());
-			aClass = aClass.getSuperclass();
-		} while (aClass != null && aClass != Object.class);
-		return fields.toArray(new Field[fields.size()]);
-	}
-
+	static List<EventBus> eventHandlers = new ArrayList<EventBus>() {{
+		add(FMLCommonHandler.instance().bus());
+		add(MinecraftForge.EVENT_BUS);
+	}};
+	
 	public static <P> PRunnable<P> toPRunnable(final java.lang.Runnable runnable, Class<P> type) {
 		return new PRunnable<P>() {
 			@Override
@@ -63,7 +38,7 @@ public class Utils {
 	 */
 	public static boolean isClient()
 	{
-		return FMLCommonHandler.instance().getEffectiveSide().isClient();
+		return FMLCommonHandler.instance().getSide().isClient();
 	}
 	
 	/**
@@ -72,69 +47,26 @@ public class Utils {
 	 */
 	public static boolean isServer()
 	{
-		return FMLCommonHandler.instance().getEffectiveSide().isServer();
+		return FMLCommonHandler.instance().getSide().isServer();
 	}
-	
+
 	/**
 	 * Get the Client Player Name (or a empty string if we're on server)
 	 * @return Client Player Name
 	 */
+	@SideOnly(Side.CLIENT)
 	public static String getPlayerName()
 	{
-		return isClient() ? Minecraft.getMinecraft().getSession().getUsername() : "";
-	}
-	
-	/**
-	 * Get an Config File from the Path
-	 * @param pathname the Path
-	 * @return a new Configuration instance
-	 */
-	public static Configuration getConfig(String pathname)
-	{
-		return new Configuration(new File(pathname));
+		return isClient() ? Minecraft.getMinecraft().thePlayer.getDisplayName() : "";
 	}
 
 	/**
-	 * Get an Config File from the File
-	 * @param file the File
-	 * @return a New Configuration instance
-	 */
-	public static Configuration getConfig(File file)
-    {
-    	return new Configuration(file);
-    }
-    
-	/**
-	 * Get an Config File from the Event
-	 * @param event the PreInitEvent
-	 * @return a New Configuration instance
-	 */
-    public static Configuration getConfig(FMLPreInitializationEvent event)
-    {
-    	return new Configuration(event.getSuggestedConfigurationFile());
-    }
-
-	/**
-     * It add all events to the FML and Forge Bus (Lazy way)
-     * @param events The Events
+	 * Register All Events in all EventBusses
+	 * @param events The Events
      */
-	public static void addEventsToBus(Object... events)
+	public static void registerEvents(Object... events)
 	{
-		EventBus fmlBus = FMLCommonHandler.instance().bus(), forgeBus = MinecraftForge.EVENT_BUS;
-		for (Object event : events) {
-			fmlBus.register(event);
-			forgeBus.register(event);
-		}
-	}
-	
-	/**
-	 * Just in case anyone doesn't know where, I found this on {@link MinecraftForge} class
-	 * @param seed The Seed {@link ItemStack} to Be Dropped
-	 * @param chance The Chance to be Dropped (Wheat Seeds is 10)
-	 */
-	public static void addGrassSeed(ItemStack seed, int chance)
-	{
-		MinecraftForge.addGrassSeed(seed, chance);
+		for (EventBus bus : eventHandlers) for (Object event : events) bus.register(event);
 	}
 	
 	/**
@@ -145,12 +77,5 @@ public class Utils {
 	public static String removeFormatting(String str)
 	{
 		return formattingRemover.matcher(str).replaceAll("");
-	}
-	
-	public static URL newURL(String url) {
-		try {
-			return new URL(url);
-		} catch (MalformedURLException ignored) {}
-		return null;
 	}
 }

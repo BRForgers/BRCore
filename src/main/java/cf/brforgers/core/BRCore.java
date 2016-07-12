@@ -21,7 +21,7 @@ public class BRCore extends DummyModContainer
 	public BRCore() {
 		super(MetadataCollection.from(MetadataCollection.class.getResourceAsStream("/brcore.info"), "BRCore").getMetadataForId("BRCore", Utils.asMap(Lib.class, null)));
 		ModRegister.AddFancyModname(this.getMetadata().modId, Lib.FANCYNAME);
-		logger.info("Mod registered");
+		logger.info("CoreMod registered");
 		instance = this;
 	}
 
@@ -35,14 +35,10 @@ public class BRCore extends DummyModContainer
 		{
 			if (config.getBoolean("vanilla3DArmors", "ClientModules", false, "(Experimental) Vanilla Armors will be rendered 3D in Inventory"))
 				Armor3DRenderer.RegisterVanillaArmors();
-			UpdateManager.enabled = config.getBoolean("enabledUpdater", "ClientModules", true, "Enable or Disable the Mod Updater Indicator.");
-			UpdateManager.timeout = config.getInt("timecycleUpdater", "ClientModules", 300, 60, 1200, "Set the Timeout (in seconds) to the updater check to updates.") * 20;
 		}
 
 		if(config.hasChanged())
 			config.save();
-
-		UpdateManager.addToUpdateChecker(Lib.MODID, Lib.FANCYNAME, Lib.UPDATEURL, Lib.VERSION);
 	}
 
 	@Override
