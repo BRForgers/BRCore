@@ -3,6 +3,7 @@ package cf.brforgers.core;
 import cf.brforgers.core.lib.ModRegister;
 import cf.brforgers.core.lib.Utils;
 import cf.brforgers.core.lib.client.Armor3DRenderer;
+import cf.brforgers.core.lib.reflect.ReflectionHelper;
 import com.google.common.eventbus.EventBus;
 import com.google.common.eventbus.Subscribe;
 import cpw.mods.fml.common.DummyModContainer;
@@ -19,7 +20,7 @@ public class BRCore extends DummyModContainer
 	private static BRCore instance = null;
 
 	public BRCore() {
-		super(MetadataCollection.from(MetadataCollection.class.getResourceAsStream("/brcore.info"), "BRCore").getMetadataForId("BRCore", Utils.asMap(Lib.class, null)));
+		super(MetadataCollection.from(MetadataCollection.class.getResourceAsStream("/brcore.info"), "BRCore").getMetadataForId("BRCore", ReflectionHelper.asMap(Lib.class, null)));
 		ModRegister.AddFancyModname(this.getMetadata().modId, Lib.FANCYNAME);
 		logger.info("CoreMod registered");
 		instance = this;
@@ -28,7 +29,7 @@ public class BRCore extends DummyModContainer
 	@Subscribe
 	public static void preInit(FMLPreInitializationEvent e)
 	{
-		Configuration config = Utils.getConfig(e);
+		Configuration config = new Configuration(e.getSuggestedConfigurationFile());
 		config.load();
 
 		if (Utils.isClient())

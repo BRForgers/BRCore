@@ -22,7 +22,7 @@ public class KeyMapper {
     private static KeyMapper getInstance() {
         if (instance == null) {
             instance = new KeyMapper();
-            Utils.addEventsToBus(instance);
+            Utils.registerEvents(instance);
         }
         return instance;
     }

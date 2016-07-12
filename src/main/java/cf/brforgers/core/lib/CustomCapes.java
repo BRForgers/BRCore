@@ -80,7 +80,7 @@ public class CustomCapes {
 						{
 							cape = capeBuffer.get(capeUrl);
 						} else {
-							URL url = Utils.newURL(capeUrl);
+							URL url = IOHelper.newURL(capeUrl);
 							cape = new CustomCape(url);
 							capeBuffer.put(capeUrl, cape);
 						}
@@ -114,8 +114,8 @@ public class CustomCapes {
 	        	{
 	        		cape = capeBuffer.get(cape);
 	        	} else {
-	        		cape = new CustomCape(Utils.newURL(capeUrl));
-	        		capeBuffer.put(capeUrl, cape);
+					cape = new CustomCape(IOHelper.newURL(capeUrl));
+					capeBuffer.put(capeUrl, cape);
 	        	}
 
 				add(userInstance, doOverrideUsers);
