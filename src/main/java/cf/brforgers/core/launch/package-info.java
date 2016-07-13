@@ -5,4 +5,4 @@
  * @author AdrianTodt
  *
  */
-package cf.brforgers.core.plugin;
+package cf.brforgers.core.launch;

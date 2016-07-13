@@ -1,7 +1,7 @@
 package cf.brforgers.core.lib.client;
 
-import static net.minecraft.init.Items.*;
-
+import cpw.mods.fml.relauncher.Side;
+import cpw.mods.fml.relauncher.SideOnly;
 import net.minecraft.client.model.ModelBiped;
 import net.minecraft.client.renderer.entity.RenderBiped;
 import net.minecraft.item.Item;
@@ -10,37 +10,36 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.client.IItemRenderer;
 import net.minecraftforge.client.MinecraftForgeClient;
-
 import org.lwjgl.opengl.GL11;
 
-import cpw.mods.fml.relauncher.Side;
-import cpw.mods.fml.relauncher.SideOnly;
+import static net.minecraft.init.Items.*;
 
 @SideOnly(Side.CLIENT)
 public class Armor3DRenderer implements IItemRenderer {
 	private static ModelBiped default1 = new ModelBiped(0.45f), default2 = new ModelBiped(0.9f);
-	public static void RegisterVanillaArmors() {
-		Item[] armors = new Item[]{
+    private ItemArmor armor;
+
+    private Armor3DRenderer(ItemArmor armor) {
+        this.armor = armor;
+    }
+
+    public static void registerVanillaArmors() {
+        Item[] armors = new Item[]{
 				leather_boots, leather_chestplate, leather_helmet, leather_leggings,
 				golden_boots, golden_chestplate, golden_helmet, golden_leggings,
 				chainmail_boots, chainmail_chestplate, chainmail_helmet, chainmail_leggings,
 				iron_boots, iron_chestplate, iron_helmet, iron_leggings,
 				diamond_boots, diamond_chestplate, diamond_helmet, diamond_leggings
 		};
-		
+
 		for (Item item : armors) {
-			Register((ItemArmor)item);
-		}
+            register((ItemArmor) item);
+        }
 	}
-	
-	public static void Register(ItemArmor armor) {
-		MinecraftForgeClient.registerItemRenderer(armor, new Armor3DRenderer(armor));
+
+    public static void register(ItemArmor armor) {
+        MinecraftForgeClient.registerItemRenderer(armor, new Armor3DRenderer(armor));
 	}
-	
-    private ItemArmor armor;
-    private Armor3DRenderer(ItemArmor armor) {
-        this.armor = armor;
-    }
 
     @Override
     public boolean handleRenderType(ItemStack item, ItemRenderType type) {

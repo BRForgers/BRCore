@@ -2,9 +2,6 @@ package cf.brforgers.core.lib.utils;
 
 import java.util.concurrent.Callable;
 
-/**
- * Created by adria on 08/07/2016.
- */
 public class AsyncTask<T> implements Runnable {
     private static int count = 0;
     public final int taskId = count++;
@@ -21,24 +18,24 @@ public class AsyncTask<T> implements Runnable {
         this.task = task;
     }
 
-    public AsyncTask<T> SetTask(Callable<T> task) {
+    public AsyncTask<T> setTask(Callable<T> task) {
         this.task = task;
 
         return this;
     }
 
-    public AsyncTask<T> SetFinishTrigger(Function<T> trigger) {
+    public AsyncTask<T> setFinishTrigger(Function<T> trigger) {
         finishedTrigger = trigger;
 
         return this;
     }
 
-    public AsyncTask<T> SetCrashFallback(Function<Exception> crashHandler) {
+    public AsyncTask<T> setCrashFallback(Function<Exception> crashHandler) {
         onCrash = crashHandler;
         return this;
     }
 
-    public AsyncTask<T> StartTaskOnNewThread() {
+    public AsyncTask<T> startTaskOnNewThread() {
         new Thread(this, "AsyncTask" + taskId).run();
         return this;
 

@@ -1,4 +1,4 @@
-package cf.brforgers.core.plugin;
+package cf.brforgers.core.launch;
 
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;

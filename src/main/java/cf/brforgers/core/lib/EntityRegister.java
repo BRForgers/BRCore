@@ -6,7 +6,7 @@ import net.minecraft.entity.EntityList;
 
 /**
  * Helper requested by Rennan.
- * @author TheFreeHigh
+ * @author AdrianTodt
  *
  */
 @SuppressWarnings("unchecked")

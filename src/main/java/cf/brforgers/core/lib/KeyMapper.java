@@ -9,9 +9,6 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
-/**
- * Created by adria on 08/07/2016.
- */
 public class KeyMapper {
     private static KeyMapper instance = null;
     private List<Mapping> mappings = new ArrayList<Mapping>();

@@ -7,12 +7,74 @@ import net.minecraftforge.common.ChestGenHooks;
 
 /**
  * A Manager for Dungeon Loot, with a Enum of all Chests
- * @author TheFreeHigh
+ * @author AdrianTodt
  */
 public class DungeonManager {
 	/**
+	 * Add Loot to a Dungeon Chests
+	 * @param chest A Chest from DungeonChests
+	 * @param item the ItemStack to be added
+	 * @param minAmount Minimum Amount of the Loot
+	 * @param maxAmount Maximum Amount of the Loot
+	 * @param chance The Chance (1=Rarest,100=Commonest) of the Loot
+	 */
+	public static void addChestLoot(DungeonChests chest, ItemStack item, int minAmount, int maxAmount, int chance) {
+		ChestGenHooks.getInfo(chest.getValue()).addItem(new WeightedRandomChestContent(item, minAmount, maxAmount, chance));
+	}
+
+	/**
+	 * Add Loot to Multiple Dungeon Chests
+	 *
+	 * @param group     One of the {@link Groups}. Add all Chests from the Group
+	 * @param item      the ItemStack to be added
+	 * @param minAmount Minimum Amount of the Loot
+	 * @param maxAmount Maximum Amount of the Loot
+	 * @param chance    The Chance (1=Rarest,100=Commonest) of the Loot
+	 */
+	public static void addChestLoot(Groups group, ItemStack item, int minAmount, int maxAmount, int chance) {
+		WeightedRandomChestContent chest = new WeightedRandomChestContent(item, minAmount, maxAmount, chance);
+		DungeonChests[] dungeonChests = group.getChests();
+
+		for (DungeonChests dChest : dungeonChests) {
+			ChestGenHooks.getInfo(dChest.getValue()).addItem(chest);
+		}
+	}
+
+	/**
+	 * Add Loot to Multiple Dungeon Chests
+	 *
+	 * @param group     A Array of {@link DungeonChests}. All will get the Loot added.
+	 * @param item      the ItemStack to be added
+	 * @param minAmount Minimum Amount of the Loot
+	 * @param maxAmount Maximum Amount of the Loot
+	 * @param chance    The Chance (1=Rarest,100=Commonest) of the Loot
+	 */
+	public static void addChestLoot(DungeonChests[] dungeonChests, ItemStack item, int minAmount, int maxAmount, int chance) {
+		WeightedRandomChestContent chest = new WeightedRandomChestContent(item, minAmount, maxAmount, chance);
+		for (DungeonChests dChest : dungeonChests) {
+			ChestGenHooks.getInfo(dChest.getValue()).addItem(chest);
+		}
+	}
+
+	/**
+	 * Add Loot to All Dungeon Chests
+	 *
+	 * @param item      the ItemStack to be added
+	 * @param minAmount Minimum Amount of the Loot
+	 * @param maxAmount Maximum Amount of the Loot
+	 * @param chance    The Chance (1=Rarest,100=Commonest) of the Loot
+	 */
+	public static void addChestLootToAll(ItemStack item, int minAmount, int maxAmount, int chance) {
+		WeightedRandomChestContent chest = new WeightedRandomChestContent(item, minAmount, maxAmount, chance);
+		DungeonChests[] dungeonChests = DungeonChests.values();
+		for (DungeonChests dChest : dungeonChests) {
+			ChestGenHooks.getInfo(dChest.getValue()).addItem(chest);
+		}
+	}
+
+	/**
 	 * Now all is in a Enum. Beautiful, huh?
-	 * @author TheFreeHigh
+	 * @author AdrianTodt
 	 *
 	 */
 	public enum DungeonChests
@@ -57,10 +119,21 @@ public class DungeonManager {
 		 * Stronghold Library Chests.
 		 */
 		STRONGHOLD_LIBRARY(ChestGenHooks.STRONGHOLD_LIBRARY);
-		
+
+		String chestValue = null;
+
+		DungeonChests(String value) {
+			chestValue = value;
+		}
+
+		public String getValue()
+		{
+			return chestValue;
+		}
+
 		/**
 		 * What? Enum-ception?
-		 * @author TheFreeHigh
+		 * @author AdrianTodt
 		 *
 		 */
 		public enum Groups
@@ -85,96 +158,18 @@ public class DungeonManager {
 			 * ALL CHESTS
 			 */
 			ALL(DungeonChests.values());
-			
+
 			DungeonChests[] dChests;
-			
+
 			Groups(DungeonChests... chests)
 			{
 				dChests = chests;
 			}
-			
+
 			public DungeonChests[] getChests()
 			{
 				return dChests;
 			}
-		}
-		
-		String chestValue = null;
-		
-		DungeonChests(String value)
-		{
-			chestValue = value;
-		}
-		
-		public String getValue()
-		{
-			return chestValue;
-		}
-	}
-	
-	/**
-	 * Add Loot to a Dungeon Chests
-	 * @param chest A Chest from DungeonChests
-	 * @param item the ItemStack to be added
-	 * @param minAmount Minimum Amount of the Loot
-	 * @param maxAmount Maximum Amount of the Loot
-	 * @param chance The Chance (1=Rarest,100=Commonest) of the Loot
-	 */
-	public static void addChestLoot(DungeonChests chest, ItemStack item, int minAmount, int maxAmount, int chance)
-	{
-		ChestGenHooks.getInfo(chest.getValue()).addItem(new WeightedRandomChestContent(item, minAmount, maxAmount, chance));
-	}
-	
-	/**
-	 * Add Loot to Multiple Dungeon Chests
-	 * @param group One of the {@link Groups}. Add all Chests from the Group
-	 * @param item the ItemStack to be added
-	 * @param minAmount Minimum Amount of the Loot
-	 * @param maxAmount Maximum Amount of the Loot
-	 * @param chance The Chance (1=Rarest,100=Commonest) of the Loot
-	 */
-	public static void addChestLoot(Groups group, ItemStack item, int minAmount, int maxAmount, int chance)
-	{
-		WeightedRandomChestContent chest = new WeightedRandomChestContent(item, minAmount, maxAmount, chance);
-		DungeonChests[] dungeonChests = group.getChests();
-		
-		for(DungeonChests dChest: dungeonChests)
-		{
-			ChestGenHooks.getInfo(dChest.getValue()).addItem(chest);
-		}
-	}
-	
-	/**
-	 * Add Loot to Multiple Dungeon Chests
-	 * @param group A Array of {@link DungeonChests}. All will get the Loot added.
-	 * @param item the ItemStack to be added
-	 * @param minAmount Minimum Amount of the Loot
-	 * @param maxAmount Maximum Amount of the Loot
-	 * @param chance The Chance (1=Rarest,100=Commonest) of the Loot
-	 */
-	public static void addChestLoot(DungeonChests[] dungeonChests, ItemStack item, int minAmount, int maxAmount, int chance)
-	{
-		WeightedRandomChestContent chest = new WeightedRandomChestContent(item, minAmount, maxAmount, chance);
-		for(DungeonChests dChest: dungeonChests)
-		{
-			ChestGenHooks.getInfo(dChest.getValue()).addItem(chest);
-		}
-	}
-	
-	/**
-	 * Add Loot to All Dungeon Chests
-	 * @param item the ItemStack to be added
-	 * @param minAmount Minimum Amount of the Loot
-	 * @param maxAmount Maximum Amount of the Loot
-	 * @param chance The Chance (1=Rarest,100=Commonest) of the Loot
-	 */
-	public static void addChestLootToAll(ItemStack item, int minAmount, int maxAmount, int chance)
-	{
-		WeightedRandomChestContent chest = new WeightedRandomChestContent(item, minAmount, maxAmount, chance);
-		DungeonChests[] dungeonChests = DungeonChests.values();
-		for(DungeonChests dChest: dungeonChests)
-		{
-			ChestGenHooks.getInfo(dChest.getValue()).addItem(chest);
 		}
 	}
 }

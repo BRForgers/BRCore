@@ -66,7 +66,7 @@ println " Building: ${archivesBaseName} v${version}"
 idea.module.inheritOutputDirs = true
 
 def commonManifest = {
-    attributes 'FMLCorePlugin': 'cf.brforgers.core.plugin.BRCorePlugin'
+    attributes 'FMLCorePlugin': 'cf.brforgers.core.launch.BRCorePlugin'
     attributes 'FMLAT': 'ccc_at.cfg'
 }
 

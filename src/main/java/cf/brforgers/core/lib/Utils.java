@@ -1,5 +1,6 @@
 package cf.brforgers.core.lib;
 
+import cf.brforgers.core.launch.BRCorePlugin;
 import cf.brforgers.core.lib.utils.Function;
 import cpw.mods.fml.common.FMLCommonHandler;
 import cpw.mods.fml.common.eventhandler.EventBus;
@@ -8,17 +9,21 @@ import cpw.mods.fml.relauncher.SideOnly;
 import net.minecraft.client.Minecraft;
 import net.minecraftforge.common.MinecraftForge;
 
+import java.io.File;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.regex.Pattern;
 
 /**
  * A Common Helper Library for Mods
- * @author TheFreeHigh
+ * @author AdrianTodt
  */
 public class Utils {
 	public static final Pattern formattingRemover = Pattern.compile("(?i)" + String.valueOf('\u00a7') + "[0-9A-FK-OR]");
-	static List<EventBus> eventHandlers = new ArrayList<EventBus>() {{
+    public static final boolean debugFlag = BRCorePlugin.getDebugFlag();
+    static List<EventBus> eventHandlers = new ArrayList<EventBus>() {{
 		add(FMLCommonHandler.instance().bus());
 		add(MinecraftForge.EVENT_BUS);
 	}};
@@ -40,7 +45,7 @@ public class Utils {
 	{
 		return FMLCommonHandler.instance().getSide().isClient();
 	}
-	
+
 	/**
 	 * Get if we're on Server-side
 	 * @return true when in server-side, and false if client-side
@@ -60,16 +65,16 @@ public class Utils {
 		return isClient() ? Minecraft.getMinecraft().thePlayer.getDisplayName() : "";
 	}
 
-	/**
-	 * Register All Events in all EventBusses
-	 * @param events The Events
+    /**
+     * register All Events in all EventBusses
+     * @param events The Events
      */
 	public static void registerEvents(Object... events)
 	{
 		for (EventBus bus : eventHandlers) for (Object event : events) bus.register(event);
 	}
-	
-	/**
+
+    /**
 	 * Remove the Minecraft formatting
 	 * @param str Input String
 	 * @return Output String
@@ -78,4 +83,14 @@ public class Utils {
 	{
 		return formattingRemover.matcher(str).replaceAll("");
 	}
+
+    public static final Map<String, Object> getInjectionData() {
+        Map<String, Object> map = new HashMap<String, Object>();
+        map.putAll(BRCorePlugin.injectedData);
+        return map;
+    }
+
+    public static final File getMinecraftDir() {
+        return BRCorePlugin.getMinecraftDir();
+    }
 }

@@ -8,7 +8,7 @@ import java.net.URLConnection;
 
 /**
  * IO Helping classes
- * @author TheFreeHigh
+ * @author AdrianTodt
  */
 public class IOHelper {
 	/**

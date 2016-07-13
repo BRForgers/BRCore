@@ -1,4 +1,4 @@
-package cf.brforgers.core.plugin;
+package cf.brforgers.core.launch;
 
 import cpw.mods.fml.relauncher.FMLInjectionData;
 import cpw.mods.fml.relauncher.IFMLCallHook;
@@ -8,6 +8,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import java.io.File;
+import java.util.HashMap;
 import java.util.Map;
 
 //import net.minecraftforge.fml.relauncher.CoreModManager;
@@ -19,31 +20,54 @@ import java.util.Map;
 //import net.minecraftforge.fml.relauncher.IFMLLoadingPlugin;
 //import net.minecraftforge.fml.relauncher.IFMLLoadingPlugin.TransformerExclusions;
 
-@TransformerExclusions(value = {"cf.brforgers.core.plugin"})
+@IFMLLoadingPlugin.MCVersion("1.7.10")
+@TransformerExclusions(value = {"cf.brforgers.core.launch"})
 public class BRCorePlugin implements IFMLLoadingPlugin, IFMLCallHook
 {
-    public static final String mcVersion = "[1.7.10]";
-    public static final String version = "${mod_version}";
-
-    public static File minecraftDir;
-    public static String currentMcVersion;
-    public static Logger logger = LogManager.getLogger("BRFoundationCore");
+    public static final Map<String, Object> injectedData = new HashMap<String, Object>();
+    public static final Logger logger = LogManager.getLogger("BRCorePlugin");
+    public static BRCorePlugin fmlPlugin, callHook;
+    private static File minecraftDir;
+    private static String currentMcVersion;
+    public final boolean debugFlag;
 
     public BRCorePlugin() {
-        if (minecraftDir != null)
+        if (minecraftDir != null) {
+            debugFlag = fmlPlugin.debugFlag;
+            callHook = this;
             return;//get called twice, once for IFMLCallHook
+        }
+
+        fmlPlugin = this;
 
         minecraftDir = (File) FMLInjectionData.data()[6];
         currentMcVersion = (String) FMLInjectionData.data()[4];
-
-        
-        
         DepLoader.load();
+
+        debugFlag = new File(minecraftDir, ".debug").exists();
+        logger.info("Debug Flag: " + debugFlag + " (" + (debugFlag ? "Disable deleting" : "Enable creating") + " file \".debug\" in Minecraft Directory)");
+    }
+
+    public static boolean getDebugFlag() {
+        return fmlPlugin.debugFlag;
+    }
+
+    public static File getMinecraftDir() {
+        return minecraftDir;
+    }
+
+    public static String getCurrentMcVersion() {
+        return currentMcVersion;
     }
 
 	@Override
 	public Void call() throws Exception {
-		return null;
+        if (!getDebugFlag()) return null;
+        logger.info("Dumping InjectionData:");
+        for (Map.Entry<String, Object> entry : injectedData.entrySet()) {
+            logger.info(entry);
+        }
+        return null;
 	}
 
 	@Override
@@ -63,8 +87,9 @@ public class BRCorePlugin implements IFMLLoadingPlugin, IFMLCallHook
 
 	@Override
 	public void injectData(Map<String, Object> data) {
-		
-	}
+        injectedData.putAll(data);
+        injectedData.put("debugFlag", debugFlag);
+    }
 
 	@Override
 	public String getAccessTransformerClass() {

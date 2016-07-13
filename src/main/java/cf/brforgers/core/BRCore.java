@@ -35,7 +35,7 @@ public class BRCore extends DummyModContainer
 		if (Utils.isClient())
 		{
 			if (config.getBoolean("vanilla3DArmors", "ClientModules", false, "(Experimental) Vanilla Armors will be rendered 3D in Inventory"))
-				Armor3DRenderer.RegisterVanillaArmors();
+				Armor3DRenderer.registerVanillaArmors();
 		}
 
 		if(config.hasChanged())

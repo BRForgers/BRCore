@@ -8,7 +8,7 @@ import net.minecraft.nbt.NBTTagList;
 
 /**
  * Item/Block/ItemStack Converter and Item NBT Helper
- * @author TheFreeHigh
+ * @author AdrianTodt
  */
 public class ItemHelper
 {
