@@ -1,6 +1,7 @@
 package cf.brforgers.core.lib;
 
 import cf.brforgers.core.lib.utils.Function;
+import cpw.mods.fml.common.FMLCommonHandler;
 import cpw.mods.fml.common.eventhandler.SubscribeEvent;
 import cpw.mods.fml.common.gameevent.InputEvent;
 import net.minecraft.client.settings.KeyBinding;
@@ -19,7 +20,7 @@ public class KeyMapper {
     private static KeyMapper getInstance() {
         if (instance == null) {
             instance = new KeyMapper();
-            Utils.registerEvents(instance);
+            FMLCommonHandler.instance().bus().register(instance);
         }
         return instance;
     }

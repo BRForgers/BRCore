@@ -38,13 +38,23 @@ public class CustomCapes {
 	private static Map<String,User> users = new ConcurrentHashMap<String,User>();
 	private static Map<String,String> cache = new ConcurrentHashMap<String,String>();
 	private static Map<String,CustomCape> capeBuffer = new ConcurrentHashMap<String,CustomCape>();
-	
-	public static void preInit()
+
+    private static int roundToPowerOf2(int value) {
+        value--;
+        value |= value >> 1;
+        value |= value >> 2;
+        value |= value >> 4;
+        value |= value >> 8;
+        return value++;
+    }
+
+    public static void preInit()
 	{
 		if (!preInit)
 		{
-			if (FMLCommonHandler.instance().getEffectiveSide().isClient()) MinecraftForge.EVENT_BUS.register(new RenderEventHandler());
-			preInit = true;
+            if (FMLCommonHandler.instance().getEffectiveSide().isClient())
+                MinecraftForge.EVENT_BUS.register(new CustomCapes());
+            preInit = true;
 		}
 	}
 	
@@ -182,36 +192,22 @@ public class CustomCapes {
 		return map;
 	}
 
-	public static class Helper {
-		public static int roundToPowerOf2(int v) {
-			v--;
-			v |= v >> 1;
-			v |= v >> 2;
-			v |= v >> 4;
-			v |= v >> 8;
-			return v++;
-		}
-	}
+    @SubscribeEvent
+    public void renderPlayer(RenderPlayerEvent.Pre event) {
 
-	public static class RenderEventHandler {
+        AbstractClientPlayer player = (AbstractClientPlayer) event.entityPlayer;//getEntityPlayer();
 
-		@SubscribeEvent
-		public void renderPlayer(RenderPlayerEvent.Pre event) {
+        User user = CustomCapes.get(player.getCommandSenderName());//getDisplayNameString());
+        if (user == null) return;
 
-			AbstractClientPlayer player = (AbstractClientPlayer) event.entityPlayer;//getEntityPlayer();
+        CustomCape cape = user.cape;
+        if (cape == null) return;
 
-			User user = CustomCapes.get(player.getCommandSenderName());//getDisplayNameString());
-			if (user == null) return;
-
-			CustomCape cape = user.cape;
-			if (cape == null) return;
-
-			boolean flag = cape.isTextureLoaded(player);
-			if (!flag) {
-				cape.loadTexture(player);
-			}
-		}
-	}
+        boolean flag = cape.isTextureLoaded(player);
+        if (!flag) {
+            cape.loadTexture(player);
+        }
+    }
 
 	@SideOnly(Side.CLIENT)
 	public static class HDImageBuffer implements IImageBuffer {
@@ -219,8 +215,8 @@ public class CustomCapes {
 		public BufferedImage parseUserSkin(final BufferedImage texture) {
 			if (texture == null)
 				return null;
-			int imageWidth = texture.getWidth(null) <= 32 ? 32 : Math.min(512, Helper.roundToPowerOf2(texture.getWidth(null)));
-			int imageHeight = texture.getHeight(null) <= 16 ? 16 : Math.min(256, Helper.roundToPowerOf2(texture.getHeight(null)));
+            int imageWidth = texture.getWidth(null) <= 32 ? 32 : Math.min(512, roundToPowerOf2(texture.getWidth(null)));
+            int imageHeight = texture.getHeight(null) <= 16 ? 16 : Math.min(256, roundToPowerOf2(texture.getHeight(null)));
 
 			BufferedImage capeImage = new BufferedImage(imageWidth, imageHeight, 2);
 

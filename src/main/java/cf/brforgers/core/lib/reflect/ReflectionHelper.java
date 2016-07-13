@@ -55,15 +55,15 @@ public class ReflectionHelper {
 
     /**
      * Get all Fields from the class (Private and Public from Class and all Subclasses)
-     * @param aClass
+     * @param clazz
      * @return
      */
-    public static Field[] getAllFields(Class aClass) {
+    public static Field[] getAllFields(Class clazz) {
         List<Field> fields = new ArrayList<Field>();
         do {
-            Collections.addAll(fields, aClass.getDeclaredFields());
-            aClass = aClass.getSuperclass();
-        } while (aClass != null && aClass != Object.class);
+            Collections.addAll(fields, clazz.getDeclaredFields());
+            clazz = clazz.getSuperclass();
+        } while (clazz != null && clazz != Object.class);
         return fields.toArray(new Field[fields.size()]);
     }
 }
