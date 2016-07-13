@@ -10,16 +10,20 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
-public class KeyMapper {
-    private static KeyMapper instance = null;
-    private List<Mapping> mappings = new ArrayList<Mapping>();
+public class KeyBinder {
+    private static KeyBinder instance = null;
+    private List<KeyBind> keyBinds = new ArrayList<KeyBind>();
 
-    private KeyMapper() {
+    private KeyBinder() {
     }
 
-    private static KeyMapper getInstance() {
+    public static void register(KeyBind binding) {
+        getInstance().keyBinds.add(binding);
+    }
+
+    public static KeyBinder getInstance() {
         if (instance == null) {
-            instance = new KeyMapper();
+            instance = new KeyBinder();
             FMLCommonHandler.instance().bus().register(instance);
         }
         return instance;
@@ -27,30 +31,30 @@ public class KeyMapper {
 
     @SubscribeEvent
     public void onKeyInput(InputEvent.KeyInputEvent event) {
-        for (Iterator mappingIterator = mappings.iterator(); mappingIterator.hasNext(); ) {
-            Mapping mapping = (Mapping) mappingIterator.next();
-            if (mapping.mapping.isPressed() != mapping.state) {
-                mapping.state = mapping.mapping.isPressed();
-                mapping.runOnTrigger.run(mapping.state);
+        for (Iterator mappingIterator = keyBinds.iterator(); mappingIterator.hasNext(); ) {
+            KeyBind keyBind = (KeyBind) mappingIterator.next();
+            if (keyBind.mapping.isPressed() != keyBind.state) {
+                keyBind.state = keyBind.mapping.isPressed();
+                keyBind.runOnTrigger.run(keyBind.state);
             }
         }
 
     }
 
-    public static class Mapping {
+    public static class KeyBind {
         public final Function<Boolean> runOnTrigger;
         public final KeyBinding mapping;
         private boolean state;
 
-        public Mapping(String bindingName, String category, int key) {
+        public KeyBind(String bindingName, String category, int key) {
             this(bindingName, category, key, (Function<Boolean>) null);
         }
 
-        public Mapping(String bindingName, String category, int key, Runnable runOnTrigger) {
+        public KeyBind(String bindingName, String category, int key, Runnable runOnTrigger) {
             this(bindingName, category, key, Utils.toFunction(runOnTrigger, Boolean.class));
         }
 
-        public Mapping(String bindingName, String category, int key, Function<Boolean> runOnTrigger) {
+        public KeyBind(String bindingName, String category, int key, Function<Boolean> runOnTrigger) {
 
             this.runOnTrigger = runOnTrigger;
             mapping = new KeyBinding(bindingName, key, category);

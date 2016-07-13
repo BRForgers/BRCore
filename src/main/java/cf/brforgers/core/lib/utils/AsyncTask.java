@@ -36,7 +36,7 @@ public class AsyncTask<T> implements Runnable {
     }
 
     public AsyncTask<T> startTaskOnNewThread() {
-        new Thread(this, "AsyncTask" + taskId).run();
+        new Thread(this, "AsyncTask" + taskId).start();
         return this;
 
     }
