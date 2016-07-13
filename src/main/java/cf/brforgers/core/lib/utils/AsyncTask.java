@@ -13,8 +13,8 @@ public class AsyncTask<T> implements Runnable {
     public boolean ended = false;
     public boolean crashed = false;
     public Exception exception;
-    private PRunnable<T> finishedTrigger = null;
-    private PRunnable<Exception> onCrash = null;
+    private Function<T> finishedTrigger = null;
+    private Function<Exception> onCrash = null;
 
     public AsyncTask(Callable<T> task) {
 
@@ -27,13 +27,13 @@ public class AsyncTask<T> implements Runnable {
         return this;
     }
 
-    public AsyncTask<T> SetFinishTrigger(PRunnable<T> trigger) {
+    public AsyncTask<T> SetFinishTrigger(Function<T> trigger) {
         finishedTrigger = trigger;
 
         return this;
     }
 
-    public AsyncTask<T> SetCrashFallback(PRunnable<Exception> crashHandler) {
+    public AsyncTask<T> SetCrashFallback(Function<Exception> crashHandler) {
         onCrash = crashHandler;
         return this;
     }

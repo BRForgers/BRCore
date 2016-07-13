@@ -1,6 +1,6 @@
 package cf.brforgers.core.lib;
 
-import cf.brforgers.core.lib.utils.PRunnable;
+import cf.brforgers.core.lib.utils.Function;
 import cpw.mods.fml.common.eventhandler.SubscribeEvent;
 import cpw.mods.fml.common.gameevent.InputEvent;
 import net.minecraft.client.settings.KeyBinding;
@@ -40,19 +40,19 @@ public class KeyMapper {
     }
 
     public static class Mapping {
-        public final PRunnable<Boolean> runOnTrigger;
+        public final Function<Boolean> runOnTrigger;
         public final KeyBinding mapping;
         private boolean state;
 
         public Mapping(String bindingName, String category, int key) {
-            this(bindingName, category, key, (PRunnable<Boolean>) null);
+            this(bindingName, category, key, (Function<Boolean>) null);
         }
 
         public Mapping(String bindingName, String category, int key, Runnable runOnTrigger) {
-            this(bindingName, category, key, Utils.toPRunnable(runOnTrigger, Boolean.class));
+            this(bindingName, category, key, Utils.toFunction(runOnTrigger, Boolean.class));
         }
 
-        public Mapping(String bindingName, String category, int key, PRunnable<Boolean> runOnTrigger) {
+        public Mapping(String bindingName, String category, int key, Function<Boolean> runOnTrigger) {
 
             this.runOnTrigger = runOnTrigger;
             mapping = new KeyBinding(bindingName, key, category);

@@ -1,4 +1,6 @@
-# BRCore
+# BRCore 
+
+[![Build Status](http://jenkins.cyberdynecc.com/job/BRCore/badge/icon)](http://jenkins.cyberdynecc.com/job/BRCore/)
 
 Unstable builds: [Go to **Jenkins**](http://jenkins.cyberdynecc.com/job/BRCore/)
 

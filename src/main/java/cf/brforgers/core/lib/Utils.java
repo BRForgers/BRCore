@@ -1,6 +1,6 @@
 package cf.brforgers.core.lib;
 
-import cf.brforgers.core.lib.utils.PRunnable;
+import cf.brforgers.core.lib.utils.Function;
 import cpw.mods.fml.common.FMLCommonHandler;
 import cpw.mods.fml.common.eventhandler.EventBus;
 import cpw.mods.fml.relauncher.Side;
@@ -22,10 +22,10 @@ public class Utils {
 		add(FMLCommonHandler.instance().bus());
 		add(MinecraftForge.EVENT_BUS);
 	}};
-	
-	public static <P> PRunnable<P> toPRunnable(final java.lang.Runnable runnable, Class<P> type) {
-		return new PRunnable<P>() {
-			@Override
+
+    public static <P> Function<P> toFunction(final java.lang.Runnable runnable, Class<P> type) {
+        return new Function<P>() {
+            @Override
 			public void run(P parameter) {
 				runnable.run();
 			}
