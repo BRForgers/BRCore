@@ -1,8 +1,10 @@
-# BRCore 
+# BRCore (Branch 1.7.10)
 
 [![Build Status](http://jenkins.cyberdynecc.com/job/BRCore/badge/icon)](http://jenkins.cyberdynecc.com/job/BRCore/)
 
 Unstable builds: [Go to **Jenkins**](http://jenkins.cyberdynecc.com/job/BRCore/)
+
+1.7.10 is now over. Currently, this branch will stay here for (maybe) future Bugfixes.
 
 License: [BRForgers **DBaJ**](https://github.com/BRForgers/BRCore/blob/master/LICENSE.md)
 
