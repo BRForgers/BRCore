@@ -1,9 +1,9 @@
 package cf.brforgers.core.launch;
 
-import cpw.mods.fml.relauncher.FMLInjectionData;
-import cpw.mods.fml.relauncher.IFMLCallHook;
-import cpw.mods.fml.relauncher.IFMLLoadingPlugin;
-import cpw.mods.fml.relauncher.IFMLLoadingPlugin.TransformerExclusions;
+import net.minecraftforge.fml.relauncher.FMLInjectionData;
+import net.minecraftforge.fml.relauncher.IFMLCallHook;
+import net.minecraftforge.fml.relauncher.IFMLLoadingPlugin;
+import net.minecraftforge.fml.relauncher.IFMLLoadingPlugin.TransformerExclusions;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 

@@ -1,7 +1,8 @@
 package cf.brforgers.core;
 
-import static net.minecraft.util.EnumChatFormatting.*;
-//import net.minecraft.util.text.TextFormatting;
+//import static net.minecraft.util.EnumChatFormatting.*;
+
+import static net.minecraft.util.text.TextFormatting.*;
 
 /**
  * BRForgersCore's Strings Lib

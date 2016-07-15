@@ -2,10 +2,6 @@ package cf.brforgers.core.lib;
 
 import com.google.gson.Gson;
 import com.mojang.authlib.minecraft.MinecraftProfileTexture.Type;
-import cpw.mods.fml.common.FMLCommonHandler;
-import cpw.mods.fml.common.eventhandler.SubscribeEvent;
-import cpw.mods.fml.relauncher.Side;
-import cpw.mods.fml.relauncher.SideOnly;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.entity.AbstractClientPlayer;
 import net.minecraft.client.renderer.IImageBuffer;
@@ -14,19 +10,19 @@ import net.minecraft.client.renderer.texture.ITextureObject;
 import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.client.event.RenderPlayerEvent;
 import net.minecraftforge.common.MinecraftForge;
+import net.minecraftforge.fml.common.FMLCommonHandler;
+import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
+import net.minecraftforge.fml.relauncher.Side;
+import net.minecraftforge.fml.relauncher.SideOnly;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.net.URL;
-import java.util.Iterator;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.concurrent.ConcurrentHashMap;
-
-//import net.minecraft.client.network.NetworkPlayerInfo; //1.8+
-
 /**
  * You'd never thought CustomCapes fits in a single class
  * @author Hyghlander
@@ -45,8 +41,8 @@ public class CustomCapes {
         value |= value >> 2;
         value |= value >> 4;
         value |= value >> 8;
-        return value++;
-    }
+		return value + 1;
+	}
 
     public static void preInit()
 	{
@@ -90,8 +86,7 @@ public class CustomCapes {
 						{
 							cape = capeBuffer.get(capeUrl);
 						} else {
-							URL url = IOHelper.newURL(capeUrl);
-							cape = new CustomCape(url);
+							cape = new CustomCape(IOHelper.newURL(capeUrl));
 							capeBuffer.put(capeUrl, cape);
 						}
 
@@ -113,21 +108,19 @@ public class CustomCapes {
 		preInit();
 
 		if (users != null) {
-			for (Iterator iterator = users.entrySet().iterator(); iterator.hasNext();) {
-				Entry<String, String> entry = (Entry<String, String>) iterator.next();
+			for (Entry<String, String> entry : users.entrySet()) {
 				String userName = entry.getKey();
-	            String capeUrl = entry.getValue();
-	        	User userInstance = new User(userName);
+				String capeUrl = entry.getValue();
+				User userInstance = new User(userName);
 
 				CustomCape cape = null;
-	        	if (capeBuffer.containsKey(capeUrl) && !doOverrideCapes)
-	        	{
-	        		cape = capeBuffer.get(cape);
-	        	} else {
+				if (capeBuffer.containsKey(capeUrl) && !doOverrideCapes) {
+					cape = capeBuffer.get(capeUrl);
+				} else {
 					cape = new CustomCape(IOHelper.newURL(capeUrl));
 					capeBuffer.put(capeUrl, cape);
-	        	}
-
+				}
+				userInstance.cape = cape;
 				add(userInstance, doOverrideUsers);
 			}
 			return true;
@@ -173,16 +166,12 @@ public class CustomCapes {
 	{
 		Map<String,String> map = new ConcurrentHashMap<String,String>();
 
-		for (Iterator iterator = users.entrySet().iterator(); iterator.hasNext();) {
-			Entry<String, User> entry = (Entry<String, User>) iterator.next();
-			if (entry.getValue() != null)
-			{
+		for (Entry<String, User> entry : users.entrySet()) {
+			if (entry.getValue() != null) {
 				User user = entry.getValue();
-				if(user.username != null && user.cape != null)
-				{
+				if (user.username != null && user.cape != null) {
 					CustomCape cape = user.cape;
-					if(cape.url != null)
-					{
+					if (cape.url != null) {
 						map.put(user.username, cape.url.toString());
 					}
 				}
@@ -195,10 +184,10 @@ public class CustomCapes {
     @SubscribeEvent
     public void renderPlayer(RenderPlayerEvent.Pre event) {
 
-        AbstractClientPlayer player = (AbstractClientPlayer) event.entityPlayer;//getEntityPlayer();
+		AbstractClientPlayer player = (AbstractClientPlayer) event.getEntityPlayer();//entityPlayer;
 
-        User user = CustomCapes.get(player.getCommandSenderName());//getDisplayNameString());
-        if (user == null) return;
+		User user = CustomCapes.get(player.getDisplayNameString());//getCommandSenderName());
+		if (user == null) return;
 
         CustomCape cape = user.cape;
         if (cape == null) return;
@@ -210,11 +199,9 @@ public class CustomCapes {
     }
 
 	@SideOnly(Side.CLIENT)
-	public static class HDImageBuffer implements IImageBuffer {
+	private static class HDCapeBuffer implements IImageBuffer {
 		@Override
 		public BufferedImage parseUserSkin(final BufferedImage texture) {
-			if (texture == null)
-				return null;
             int imageWidth = texture.getWidth(null) <= 32 ? 32 : Math.min(512, roundToPowerOf2(texture.getWidth(null)));
             int imageHeight = texture.getHeight(null) <= 16 ? 16 : Math.min(256, roundToPowerOf2(texture.getHeight(null)));
 
@@ -227,12 +214,8 @@ public class CustomCapes {
 			return capeImage;
 		}
 
-		//@Override
-		public void skinAvailable() {
-		}
-
 		@Override
-		public void func_152634_a() {
+		public void skinAvailable() {
 		}
 	}
 
@@ -277,8 +260,8 @@ public class CustomCapes {
 			if (FMLCommonHandler.instance().getEffectiveSide().isServer()) return;
 			ResourceLocation location = this.getLocation();
 
-			player.func_152121_a(Type.CAPE, location);
-			//player.playerInfo.playerTextures.put(Type.CAPE, location);
+			//player.func_152121_a(Type.CAPE, location);
+			player.playerInfo.playerTextures.put(Type.CAPE, location);
 			//player.playerInfo.playerTextures.put(Type.ELYTRA, location);
 
 			Minecraft.getMinecraft().renderEngine.loadTexture(location, this.getTexture());
@@ -300,7 +283,7 @@ public class CustomCapes {
 				if (url == null)
 					this.texture = null;
 				else
-					this.texture = new ThreadDownloadImageData(null, url.toString(), null, new HDImageBuffer());
+					this.texture = new ThreadDownloadImageData(null, url.toString(), null, new HDCapeBuffer());
 		}
 	}
 }

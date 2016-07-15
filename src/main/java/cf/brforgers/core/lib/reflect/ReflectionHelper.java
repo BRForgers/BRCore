@@ -25,7 +25,7 @@ public class ReflectionHelper {
                     field.setAccessible(true);
                     result.put(field.getName(), field.get(inst));
                 }
-            } catch (Exception e) {
+            } catch (Exception ignored) {
             }
         }
         return result;
@@ -47,7 +47,7 @@ public class ReflectionHelper {
                     field.setAccessible(true);
                     result.put(field.getName(), field.get(inst).toString());
                 }
-            } catch (Exception e) {
+            } catch (Exception ignored) {
             }
         }
         return result;
@@ -65,5 +65,13 @@ public class ReflectionHelper {
             clazz = clazz.getSuperclass();
         } while (clazz != null && clazz != Object.class);
         return fields.toArray(new Field[fields.size()]);
+    }
+
+    public static Map<String, Field> mapFields(Field[] fields) {
+        Map<String, Field> fieldMap = new HashMap<String, Field>();
+        for (Field field : fields) {
+            fieldMap.put(field.getName(), field);
+        }
+        return fieldMap;
     }
 }

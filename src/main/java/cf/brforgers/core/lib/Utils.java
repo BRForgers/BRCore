@@ -2,10 +2,10 @@ package cf.brforgers.core.lib;
 
 import cf.brforgers.core.launch.BRCorePlugin;
 import cf.brforgers.core.lib.utils.Function;
-import cpw.mods.fml.common.FMLCommonHandler;
-import cpw.mods.fml.relauncher.Side;
-import cpw.mods.fml.relauncher.SideOnly;
 import net.minecraft.client.Minecraft;
+import net.minecraftforge.fml.common.FMLCommonHandler;
+import net.minecraftforge.fml.relauncher.Side;
+import net.minecraftforge.fml.relauncher.SideOnly;
 
 import java.io.File;
 import java.util.HashMap;
@@ -54,7 +54,7 @@ public class Utils {
 	@SideOnly(Side.CLIENT)
 	public static String getPlayerName()
 	{
-		return isClient() ? Minecraft.getMinecraft().thePlayer.getDisplayName() : "";
+		return isClient() ? Minecraft.getMinecraft().thePlayer.getDisplayNameString() : "";
 	}
 
     /**
@@ -67,13 +67,13 @@ public class Utils {
 		return formattingRemover.matcher(str).replaceAll("");
 	}
 
-    public static final Map<String, Object> getInjectionData() {
-        Map<String, Object> map = new HashMap<String, Object>();
-        map.putAll(BRCorePlugin.injectedData);
+	public static Map<String, Object> getInjectionData() {
+		Map<String, Object> map = new HashMap<String, Object>();
+		map.putAll(BRCorePlugin.injectedData);
         return map;
     }
 
-    public static final File getMinecraftDir() {
-        return BRCorePlugin.getMinecraftDir();
-    }
+	public static File getMinecraftDir() {
+		return BRCorePlugin.getMinecraftDir();
+	}
 }
