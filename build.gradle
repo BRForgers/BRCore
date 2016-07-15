@@ -1,23 +1,19 @@
-println "****************************"
-println " BRForgers GradleBuilding:"
+println '#################################################'
+println '   BRForgers GradleBuilding:'
+// For those who want the bleeding edge
 buildscript {
     repositories {
-        mavenCentral()
+        jcenter()
         maven {
             name = "forge"
             url = "http://files.minecraftforge.net/maven"
         }
-        maven {
-            name = "sonatype"
-            url = "https://oss.sonatype.org/content/repositories/snapshots/"
-        }
     }
     dependencies {
-        classpath 'net.minecraftforge.gradle:ForgeGradle:1.2-SNAPSHOT'
+        classpath 'net.minecraftforge.gradle:ForgeGradle:2.2-SNAPSHOT'
     }
 }
-
-apply plugin: 'forge'
+apply plugin: 'net.minecraftforge.gradle.forge'
 
 group= "cf.brforgers.core"
 archivesBaseName = "BRCore"
@@ -40,7 +36,9 @@ println " Minecraft: " + config.mc_version + "-" + config.forge_version
 // Setup the forge minecraft plugin data. Specify the preferred forge/minecraft version here
 minecraft {
     version = config.mc_version + "-" + config.forge_version
-    runDir = "eclipse"
+    runDir = "run"
+	mappings = "snapshot_20160518"
+	makeObfSourceJar = false
 }
 
 processResources {
