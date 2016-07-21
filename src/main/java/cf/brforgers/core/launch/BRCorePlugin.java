@@ -20,7 +20,7 @@ import java.util.Map;
 //import net.minecraftforge.fml.relauncher.IFMLLoadingPlugin;
 //import net.minecraftforge.fml.relauncher.IFMLLoadingPlugin.TransformerExclusions;
 
-@IFMLLoadingPlugin.MCVersion("1.7.10")
+@IFMLLoadingPlugin.MCVersion("1.10.2")
 @TransformerExclusions(value = {"cf.brforgers.core.launch"})
 public class BRCorePlugin implements IFMLLoadingPlugin, IFMLCallHook
 {

@@ -65,7 +65,7 @@ idea.module.inheritOutputDirs = true
 
 def commonManifest = {
     attributes 'FMLCorePlugin': 'cf.brforgers.core.launch.BRCorePlugin'
-    attributes 'FMLAT': 'ccc_at.cfg'
+    attributes 'FMLAT': 'brcore_at.cfg'
 }
 
 jar {

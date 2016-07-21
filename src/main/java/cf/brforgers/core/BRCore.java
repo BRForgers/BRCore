@@ -41,6 +41,8 @@ public class BRCore extends DummyModContainer
 
 		if(config.hasChanged())
 			config.save();
+
+		//MinecraftForge.EVENT_BUS.register(new EEEventHandler());
 	}
 
 	@Override
