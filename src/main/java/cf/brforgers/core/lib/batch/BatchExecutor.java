@@ -9,16 +9,10 @@ public abstract class BatchExecutor extends ProfiledRunnable {
     public int runnableOverloadMark = 100000;
     private List<Runnable> executions = new ArrayList<Runnable>(), nextTickExecutions = new ArrayList<Runnable>();
 
-    private boolean shouldExecuteRunnable(Runnable runnable) {
-        if (runnable == null) return true;
+    protected boolean shouldExecuteRunnable() {
         if (!discardRunnablesForEfficiencyOnOverload) return true;
         if (executions.size() < runnableOverloadMark) return true;
         return rnd.nextBoolean();
-    }
-
-    private boolean shouldRunNext(long thisTickStarted) {
-        if (tickTimeout == 0) return true;
-        return System.currentTimeMillis() < (thisTickStarted + tickTimeout);
     }
 
     /**
@@ -54,7 +48,7 @@ public abstract class BatchExecutor extends ProfiledRunnable {
             //for (Iterator runnableIterator = executions.iterator(); runnableIterator.hasNext();) {
             Runnable runnable = (Runnable) executions.get(i);
             if (!shouldRunNext(thisTickStarted)) break;
-            if (shouldExecuteRunnable(runnable)) {
+            if (shouldExecuteRunnable()) {
                 runnable.run();
                 runs++;
             } else {
