@@ -4,19 +4,22 @@ import net.minecraft.util.math.MathHelper;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.common.gameevent.TickEvent;
 
-public abstract class TickBatchExecutor extends BatchExecutor {
+public final class TickBatchExecutor {
+    private TickBatchExecutor() {
+    }
+
     public abstract static class Base extends BatchExecutor {
         public boolean runOnTickStart = true;
         public boolean runOnTickEnd = true;
 
         public void tickRun(TickEvent.Phase phase) {
-            if (phase == TickEvent.Phase.START && runOnTickStart) tickRun();
-            if (phase == TickEvent.Phase.END && runOnTickEnd) tickRun();
+            if (phase == TickEvent.Phase.START && runOnTickStart) run();
+            if (phase == TickEvent.Phase.END && runOnTickEnd) run();
         }
 
-        public void tickRun() {
+        public void run() {
             tickTimeout = MathHelper.clamp_int(tickTimeout, 1, 4);
-            super.tickRun();
+            super.run();
         }
     }
 

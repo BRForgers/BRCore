@@ -20,8 +20,8 @@ public class WorldBlockPos extends BlockPos {
         this(world, MathHelper.floor_double(x), MathHelper.floor_double(y), MathHelper.floor_double(z));
     }
 
-    public WorldBlockPos(World world, Entity source) {
-        this(world, source.posX, source.posY, source.posZ);
+    public WorldBlockPos(Entity source) {
+        this(source.worldObj, source.posX, source.posY, source.posZ);
     }
 
     public WorldBlockPos(World world, Vec3d vec) {
@@ -30,6 +30,10 @@ public class WorldBlockPos extends BlockPos {
 
     public WorldBlockPos(World world, Vec3i source) {
         this(world, source.getX(), source.getY(), source.getZ());
+    }
+
+    public static WorldBlockPos fromVanilla(World world, BlockPos pos) {
+        return new WorldBlockPos(world, pos);
     }
 
     public World getWorld() {
