@@ -1,6 +1,5 @@
 package cf.brforgers.core.lib;
 
-import cf.brforgers.core.lib.utils.Function;
 import net.minecraft.client.settings.KeyBinding;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
@@ -33,27 +32,22 @@ public class KeyBinder {
         for (KeyBind keyBind : keyBinds) {
             if (keyBind.mapping.isPressed() != keyBind.state) {
                 keyBind.state = keyBind.mapping.isPressed();
-                keyBind.runOnTrigger.run(keyBind.state);
+                keyBind.runOnTrigger.run();
             }
         }
 
     }
 
     public static class KeyBind {
-        public final Function<Boolean> runOnTrigger;
+        public final Runnable runOnTrigger;
         public final KeyBinding mapping;
         private boolean state;
 
         public KeyBind(String bindingName, String category, int key) {
-            this(bindingName, category, key, (Function<Boolean>) null);
+            this(bindingName, category, key, (Runnable) null);
         }
 
         public KeyBind(String bindingName, String category, int key, Runnable runOnTrigger) {
-            this(bindingName, category, key, Utils.toFunction(runOnTrigger, Boolean.class));
-        }
-
-        public KeyBind(String bindingName, String category, int key, Function<Boolean> runOnTrigger) {
-
             this.runOnTrigger = runOnTrigger;
             mapping = new KeyBinding(bindingName, key, category);
         }

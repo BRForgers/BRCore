@@ -1,7 +1,6 @@
 package cf.brforgers.core.lib;
 
 import cf.brforgers.core.launch.BRCorePlugin;
-import cf.brforgers.core.lib.utils.Function;
 import net.minecraft.client.Minecraft;
 import net.minecraftforge.fml.common.FMLCommonHandler;
 import net.minecraftforge.fml.relauncher.Side;
@@ -19,15 +18,6 @@ import java.util.regex.Pattern;
 public class Utils {
 	public static final Pattern formattingRemover = Pattern.compile("(?i)" + String.valueOf('\u00a7') + "[0-9A-FK-OR]");
     public static final boolean debugFlag = BRCorePlugin.getDebugFlag();
-
-    public static <P> Function<P> toFunction(final java.lang.Runnable runnable, Class<P> type) {
-        return new Function<P>() {
-            @Override
-			public void run(P parameter) {
-				runnable.run();
-			}
-		};
-	}
 	
 	/**
 	 * Get if we're on Client-side

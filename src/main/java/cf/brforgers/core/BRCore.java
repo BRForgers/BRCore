@@ -1,8 +1,8 @@
 package cf.brforgers.core;
 
-import cf.brforgers.core.lib.ModRegister;
+import cf.brforgers.core.lib.ModDefinition;
+import cf.brforgers.core.lib.RegisterManager;
 import cf.brforgers.core.lib.Utils;
-import cf.brforgers.core.lib.reflect.ReflectionHelper;
 import com.google.common.eventbus.EventBus;
 import com.google.common.eventbus.Subscribe;
 import net.minecraftforge.common.config.Configuration;
@@ -13,17 +13,36 @@ import net.minecraftforge.fml.common.event.FMLPreInitializationEvent;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
+import java.util.HashMap;
+
+import static net.minecraft.util.text.TextFormatting.*;
+
 //import cf.brforgers.core.lib.client.Armor3DRenderer;
 
 public class BRCore extends DummyModContainer
 {
+    public static final String FANCYNAME = DARK_GREEN.toString() + BOLD.toString() + "BR" + GOLD.toString() + BOLD.toString() + "Core";
+
 	public static Logger logger = LogManager.getLogger("BRCore");
 	private static BRCore instance = null;
 
 	public BRCore() {
-		super(MetadataCollection.from(MetadataCollection.class.getResourceAsStream("/brcore.info"), "BRCore").getMetadataForId("BRCore", ReflectionHelper.asMap(Lib.class, null)));
-		ModRegister.AddFancyModname(this.getMetadata().modId, Lib.FANCYNAME);
+        super(
+                MetadataCollection.from(
+                        MetadataCollection.class.getResourceAsStream("/brcore.info"), "BRCore"
+                ).getMetadataForId(
+                        "BRCore",
+                        new HashMap<String, Object>() {{
+                            put("name", "brcore");
+                            put("version", "1.0");
+                        }}
+                )
+        );
+
 		logger.info("CoreMod registered");
+
+        RegisterManager.getGlobal(ModDefinition.class).putObject("brcore", new ModDefinition(getModId(), getName(), FANCYNAME));
+
 		instance = this;
 	}
 

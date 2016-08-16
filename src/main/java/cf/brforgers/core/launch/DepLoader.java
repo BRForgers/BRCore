@@ -6,7 +6,10 @@ import com.google.gson.JsonParser;
 import net.minecraft.launchwrapper.LaunchClassLoader;
 import net.minecraftforge.fml.common.asm.transformers.ModAccessTransformer;
 import net.minecraftforge.fml.common.versioning.ComparableVersion;
-import net.minecraftforge.fml.relauncher.*;
+import net.minecraftforge.fml.relauncher.CoreModManager;
+import net.minecraftforge.fml.relauncher.FMLInjectionData;
+import net.minecraftforge.fml.relauncher.FMLLaunchHandler;
+import net.minecraftforge.fml.relauncher.FMLRelaunchLog;
 import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -49,52 +52,21 @@ import java.util.zip.ZipFile;
  * This is really unoriginal, mostly ripped off FML, credits to cpw.
  */
 @SuppressWarnings("unchecked")
-public class DepLoader implements IFMLLoadingPlugin, IFMLCallHook {
+public class DepLoader {
     private static final String owner = "BRForgers' DepLoader";
     private static final Logger logger = LogManager.getLogger(owner);
     // Static things >.>
     private static ByteBuffer downloadBuffer = ByteBuffer.allocateDirect(1 << 23);
-    private static DepLoadInst inst;
+    private static Instance instance;
 
     public static void load() {
-        if (inst == null) {
-            inst = new DepLoadInst();
-            inst.load();
+        if (instance == null) {
+            instance = new Instance();
+            instance.load();
         }
     }
 
-    @Override
-    public String[] getASMTransformerClass() {
-        return null;
-    }
-
-    @Override
-    public String getModContainerClass() {
-        return null;
-    }
-
-    @Override
-    public String getSetupClass() {
-        return getClass().getName();
-    }
-
-    @Override
-    public void injectData(Map<String, Object> data) {
-    }
-
-
-    @Override
-    public Void call() {
-        load();
-        return null;
-    }
-
-    @Override
-    public String getAccessTransformerClass() {
-        return null;
-    }
-
-    public interface IDownloadDisplay {
+    public interface IDownloader {
         void resetProgress(int sizeGuess);
 
         void setPokeThread(Thread currentThread);
@@ -170,7 +142,7 @@ public class DepLoader implements IFMLLoadingPlugin, IFMLCallHook {
     }
 
     @SuppressWarnings("serial")
-    public static class Downloader extends JOptionPane implements IDownloadDisplay {
+    public static class WindowedDownloader extends JOptionPane implements IDownloader {
         boolean stopIt;
         Thread pokeThread;
         private JDialog container;
@@ -207,7 +179,7 @@ public class DepLoader implements IFMLLoadingPlugin, IFMLCallHook {
             addPropertyChangeListener(new PropertyChangeListener() {
                 @Override
                 public void propertyChange(PropertyChangeEvent evt) {
-                    if (evt.getSource() == Downloader.this && evt.getPropertyName() == VALUE_PROPERTY) {
+                    if (evt.getSource() == WindowedDownloader.this && evt.getPropertyName() == VALUE_PROPERTY) {
                         requestClose("This will stop minecraft from launching\nAre you sure you want to do this?");
                     }
                 }
@@ -289,7 +261,7 @@ public class DepLoader implements IFMLLoadingPlugin, IFMLCallHook {
         }
     }
 
-    public static class DummyDownloader implements IDownloadDisplay {
+    public static class DummyDownloader implements IDownloader {
         @Override
         public void resetProgress(int sizeGuess) {
         }
@@ -321,10 +293,10 @@ public class DepLoader implements IFMLLoadingPlugin, IFMLCallHook {
         }
     }
 
-    public static class DepLoadInst {
+    public static class Instance {
         private File modsDir;
-        private File v_modsDir;
-        private IDownloadDisplay downloadMonitor;
+        private File vModsDir;
+        private IDownloader downloadMonitor;
         private JDialog popupWindow;
 
         private Map<String, Dependency> depMap = new HashMap<String, Dependency>();
@@ -333,13 +305,13 @@ public class DepLoader implements IFMLLoadingPlugin, IFMLCallHook {
         private File scanning;
         private LaunchClassLoader loader = (LaunchClassLoader) DepLoader.class.getClassLoader();
 
-        public DepLoadInst() {
+        public Instance() {
             String mcVer = (String) FMLInjectionData.data()[4];
             File mcDir = (File) FMLInjectionData.data()[6];
 
             modsDir = new File(mcDir, "mods");
-            v_modsDir = new File(mcDir, "mods/" + mcVer);
-            if (!v_modsDir.exists()) v_modsDir.mkdirs();
+            vModsDir = new File(mcDir, "mods/" + mcVer);
+            if (!vModsDir.exists()) vModsDir.mkdirs();
         }
 
         private void addClasspath(File file) {
@@ -389,7 +361,7 @@ public class DepLoader implements IFMLLoadingPlugin, IFMLCallHook {
             if (!extract(dep)) download(dep);
 
             dep.existing = dep.file.filename;
-            scanDepInfo(new File(v_modsDir, dep.existing));
+            scanDepInfo(new File(vModsDir, dep.existing));
         }
 
         private boolean extract(Dependency dep) {
@@ -429,7 +401,7 @@ public class DepLoader implements IFMLLoadingPlugin, IFMLCallHook {
                 URLConnection connection = libDownload.openConnection();
                 connection.setConnectTimeout(5000);
                 connection.setReadTimeout(5000);
-                connection.setRequestProperty("User-Agent", "" + owner + " Downloader");
+                connection.setRequestProperty("User-Agent", "" + owner + " WindowedDownloader");
                 download(connection.getInputStream(), connection.getContentLength(), dep);
                 downloadMonitor.updateProgressString("Download complete");
                 logger.info("Download complete");
@@ -448,7 +420,7 @@ public class DepLoader implements IFMLLoadingPlugin, IFMLCallHook {
         }
 
         private void download(InputStream is, int sizeGuess, Dependency dep) throws Exception {
-            File target = new File(v_modsDir, dep.file.filename);
+            File target = new File(vModsDir, dep.file.filename);
             if (sizeGuess > downloadBuffer.capacity())
                 throw new Exception(String.format("The file %s is too large to be downloaded by " + owner + " - the download is invalid", target.getName()));
 
@@ -489,11 +461,11 @@ public class DepLoader implements IFMLLoadingPlugin, IFMLCallHook {
             for (File f : modsDir.listFiles()) {
                 VersionedFile vfile = new VersionedFile(f.getName(), dep.file.pattern);
                 if (!vfile.matches() || !vfile.name.equals(dep.file.name)) continue;
-                if (f.renameTo(new File(v_modsDir, f.getName()))) continue;
+                if (f.renameTo(new File(vModsDir, f.getName()))) continue;
                 deleteMod(f);
             }
 
-            for (File f : v_modsDir.listFiles()) {
+            for (File f : vModsDir.listFiles()) {
                 VersionedFile vfile = new VersionedFile(f.getName(), dep.file.pattern);
                 if (!vfile.matches() || !vfile.name.equals(dep.file.name)) continue;
                 int cmp = vfile.version.compareTo(dep.file.version);
@@ -520,7 +492,7 @@ public class DepLoader implements IFMLLoadingPlugin, IFMLCallHook {
 
         private void activateDeps() {
             for (Dependency dep : depMap.values()) {
-                File file = new File(v_modsDir, dep.existing);
+                File file = new File(vModsDir, dep.existing);
                 if (!searchCoreMod(file) && dep.coreLib) addClasspath(file);
             }
         }
@@ -575,7 +547,7 @@ public class DepLoader implements IFMLLoadingPlugin, IFMLCallHook {
         }
 
         private void loadDeps() {
-            downloadMonitor = FMLLaunchHandler.side().isClient() ? new Downloader() : new DummyDownloader();
+            downloadMonitor = FMLLaunchHandler.side().isClient() ? new WindowedDownloader() : new DummyDownloader();
             try {
                 while (!depSet.isEmpty()) {
                     Iterator<String> it = depSet.iterator();
@@ -600,7 +572,7 @@ public class DepLoader implements IFMLLoadingPlugin, IFMLCallHook {
         private List<File> modFiles() {
             List<File> list = new LinkedList<File>();
             list.addAll(Arrays.asList(modsDir.listFiles()));
-            list.addAll(Arrays.asList(v_modsDir.listFiles()));
+            list.addAll(Arrays.asList(vModsDir.listFiles()));
             return list;
         }
 

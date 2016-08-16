@@ -7,7 +7,7 @@ import java.util.*;
 /**
  * Reflection done more easily
  */
-public class ReflectionHelper {
+public class BRForgersReflect {
     /**
      * Transform a Class to a Map.
      *
