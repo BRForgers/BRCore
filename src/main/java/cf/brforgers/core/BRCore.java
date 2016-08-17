@@ -1,10 +1,12 @@
 package cf.brforgers.core;
 
+import cf.brforgers.core.internal.InternalEventHandler;
+import cf.brforgers.core.lib.GeneralRegistry;
 import cf.brforgers.core.lib.ModDefinition;
-import cf.brforgers.core.lib.RegisterManager;
 import cf.brforgers.core.lib.Utils;
 import com.google.common.eventbus.EventBus;
 import com.google.common.eventbus.Subscribe;
+import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.common.config.Configuration;
 import net.minecraftforge.fml.common.DummyModContainer;
 import net.minecraftforge.fml.common.LoadController;
@@ -41,7 +43,7 @@ public class BRCore extends DummyModContainer
 
 		logger.info("CoreMod registered");
 
-        RegisterManager.getGlobal(ModDefinition.class).putObject("brcore", new ModDefinition(getModId(), getName(), FANCYNAME));
+		GeneralRegistry.getGlobal(ModDefinition.class).putObject("brcore", new ModDefinition(getModId(), getName(), FANCYNAME));
 
 		instance = this;
 	}
@@ -61,7 +63,7 @@ public class BRCore extends DummyModContainer
 		if(config.hasChanged())
 			config.save();
 
-		//MinecraftForge.EVENT_BUS.register(new EEEventHandler());
+		MinecraftForge.EVENT_BUS.register(new InternalEventHandler());
 	}
 
 	@Override

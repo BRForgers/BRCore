@@ -9,11 +9,11 @@ import net.minecraftforge.fml.common.registry.PersistentRegistryManager;
 import java.util.HashMap;
 import java.util.Map;
 
-public class RegisterManager {
-    private static RegisterManager instance = new RegisterManager();
+public class GeneralRegistry {
+    private static GeneralRegistry instance = new GeneralRegistry();
     private Map<Class, RegistryNamespaced> internal = new HashMap<Class, RegistryNamespaced>();
 
-    private RegisterManager() {
+    private GeneralRegistry() {
     }
 
     @SuppressWarnings("unchecked")
@@ -27,12 +27,12 @@ public class RegisterManager {
         return r;
     }
 
-    public static RegisterManager getInstance() {
+    public static GeneralRegistry getInstance() {
         return instance;
     }
 
-    public static RegisterManager getPersonal() {
-        return new RegisterManager();
+    public static GeneralRegistry getPersonal() {
+        return new GeneralRegistry();
     }
 
     @SuppressWarnings("unchecked")
@@ -46,7 +46,7 @@ public class RegisterManager {
         return r;
     }
 
-    public <T extends IForgeRegistryEntry<T>> RegisterManager boundRegistryWithForge(final Class<T> type, int max, ResourceLocation registryName, ResourceLocation optionalDefaultKey) {
+    public <T extends IForgeRegistryEntry<T>> GeneralRegistry boundRegistryWithForge(final Class<T> type, int max, ResourceLocation registryName, ResourceLocation optionalDefaultKey) {
         //IForgeRegistry<T> FORGE = //nothing to do with this variable
         PersistentRegistryManager.createRegistry(
                 registryName,
