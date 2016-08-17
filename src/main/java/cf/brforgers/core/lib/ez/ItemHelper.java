@@ -1,4 +1,4 @@
-package cf.brforgers.core.lib;
+package cf.brforgers.core.lib.ez;
 
 import net.minecraft.block.Block;
 import net.minecraft.item.Item;

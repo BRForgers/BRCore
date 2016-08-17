@@ -1,4 +1,4 @@
-package cf.brforgers.core.lib;
+package cf.brforgers.core.lib.utils;
 
 import net.minecraft.util.registry.RegistrySimple;
 

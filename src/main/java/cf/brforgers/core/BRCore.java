@@ -1,13 +1,11 @@
 package cf.brforgers.core;
 
 import cf.brforgers.core.internal.InternalEventHandler;
-import cf.brforgers.core.lib.GeneralRegistry;
-import cf.brforgers.core.lib.ModDefinition;
-import cf.brforgers.core.lib.Utils;
+import cf.brforgers.core.lib.ez.mods.GeneralRegistry;
+import cf.brforgers.core.lib.ez.mods.ModDefinition;
 import com.google.common.eventbus.EventBus;
 import com.google.common.eventbus.Subscribe;
 import net.minecraftforge.common.MinecraftForge;
-import net.minecraftforge.common.config.Configuration;
 import net.minecraftforge.fml.common.DummyModContainer;
 import net.minecraftforge.fml.common.LoadController;
 import net.minecraftforge.fml.common.MetadataCollection;
@@ -51,18 +49,6 @@ public class BRCore extends DummyModContainer
 	@Subscribe
 	public static void preInit(FMLPreInitializationEvent e)
 	{
-		Configuration config = new Configuration(e.getSuggestedConfigurationFile());
-		config.load();
-
-		if (Utils.isClient())
-		{
-			//if (config.getBoolean("vanilla3DArmors", "ClientModules", false, "(Experimental) Vanilla Armors will be rendered 3D in Inventory"))
-			//Armor3DRenderer.registerVanillaArmors();
-		}
-
-		if(config.hasChanged())
-			config.save();
-
 		MinecraftForge.EVENT_BUS.register(new InternalEventHandler());
 	}
 

@@ -1,4 +1,4 @@
-package cf.brforgers.core.lib;
+package cf.brforgers.core.lib.ez.mods;
 
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.registry.RegistryNamespaced;
@@ -10,7 +10,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class GeneralRegistry {
-    private static GeneralRegistry instance = new GeneralRegistry();
+    private static final GeneralRegistry instance = new GeneralRegistry();
     private Map<Class, RegistryNamespaced> internal = new HashMap<Class, RegistryNamespaced>();
 
     private GeneralRegistry() {

@@ -1,4 +1,4 @@
-package cf.brforgers.core.lib;
+package cf.brforgers.core.lib.ez;
 
 import com.google.gson.Gson;
 import com.mojang.authlib.minecraft.MinecraftProfileTexture.Type;
@@ -25,7 +25,7 @@ import java.util.Map.Entry;
 import java.util.concurrent.ConcurrentHashMap;
 /**
  * You'd never thought CustomCapes fits in a single class
- * @author Hyghlander
+ * @author AdrianTodt
  *
  */
 public class CustomCapes {

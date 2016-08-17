@@ -1,4 +1,4 @@
-package cf.brforgers.core.lib;
+package cf.brforgers.core.lib.utils;
 
 import cf.brforgers.core.launch.BRCorePlugin;
 import net.minecraft.client.Minecraft;

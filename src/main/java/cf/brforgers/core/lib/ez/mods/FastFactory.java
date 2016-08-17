@@ -1,10 +1,11 @@
-package cf.brforgers.core.lib;
+package cf.brforgers.core.lib.ez.mods;
 
 import net.minecraft.block.Block;
 import net.minecraft.block.material.Material;
 import net.minecraft.creativetab.CreativeTabs;
 import net.minecraft.item.Item;
 
+@SuppressWarnings("unchecked")
 public class FastFactory {
 	public CreativeTabs defaultTab;
 	public String texturePrefix;
@@ -13,11 +14,11 @@ public class FastFactory {
 	private FastFactory() {
 	}
 
-	public static FastFactory newFactory(CreativeTabs defaultTab, String modId, Material defaultMaterial) {
-		FastFactory f = new FastFactory();
+    public static FastFactory newFactory(ModDefinition mod, CreativeTabs defaultTab, Material defaultMaterial) {
+        FastFactory f = new FastFactory();
 		f.defaultTab = defaultTab;
-		f.texturePrefix = modId + ":";
-		f.defaultMaterial = defaultMaterial;
+        f.texturePrefix = mod.PATH;
+        f.defaultMaterial = defaultMaterial;
 		return f;
 	}
 
@@ -45,14 +46,14 @@ public class FastFactory {
 		return (ItemType) item.setUnlocalizedName(name).setRegistryName(texturePrefix + name).setCreativeTab(defaultTab);
 	}
 
-	public static class FactoryBlock extends Block {
-		protected FactoryBlock(Material mat) {
-			super(mat);
+    private static class FactoryBlock extends Block {
+        FactoryBlock(Material mat) {
+            super(mat);
 		}
 	}
 
-	public static class FactoryItem extends Item {
-		protected FactoryItem() {
-		}
+    private static class FactoryItem extends Item {
+        FactoryItem() {
+        }
 	}
 }

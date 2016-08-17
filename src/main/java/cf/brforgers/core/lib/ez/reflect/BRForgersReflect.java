@@ -1,4 +1,4 @@
-package cf.brforgers.core.lib.reflect;
+package cf.brforgers.core.lib.ez.reflect;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;

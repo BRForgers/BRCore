@@ -1,7 +1,8 @@
 package cf.brforgers.core.internal;
 
-import cf.brforgers.core.lib.EasterEggManager;
-import cf.brforgers.core.lib.IEventArmor;
+import cf.brforgers.core.lib.ez.EasterEggManager;
+import cf.brforgers.core.lib.ez.KeyBinder;
+import cf.brforgers.core.lib.ez.hooks.IEventArmor;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityList;
 import net.minecraft.entity.boss.EntityDragon;
@@ -11,6 +12,7 @@ import net.minecraft.item.ItemStack;
 import net.minecraftforge.event.entity.living.LivingDeathEvent;
 import net.minecraftforge.event.entity.living.LivingDropsEvent;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
+import net.minecraftforge.fml.common.gameevent.InputEvent;
 import net.minecraftforge.fml.common.gameevent.PlayerEvent;
 import net.minecraftforge.fml.common.gameevent.TickEvent;
 
@@ -113,5 +115,10 @@ public class InternalEventHandler {
                 }
             }
         }
+    }
+
+    @SubscribeEvent
+    public void onKeyInput(InputEvent.KeyInputEvent event) {
+        KeyBinder.getInstance().run();
     }
 }
