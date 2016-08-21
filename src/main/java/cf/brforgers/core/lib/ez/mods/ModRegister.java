@@ -6,6 +6,7 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.block.model.ModelResourceLocation;
 import net.minecraft.creativetab.CreativeTabs;
 import net.minecraft.item.Item;
+import net.minecraft.item.ItemBlock;
 import net.minecraftforge.fml.common.registry.GameRegistry;
 import net.minecraftforge.fml.common.registry.IForgeRegistryEntry;
 import net.minecraftforge.fml.relauncher.Side;
@@ -13,7 +14,9 @@ import net.minecraftforge.fml.relauncher.SideOnly;
 
 public class ModRegister {
     public final GeneralRegistry REGISTRY = GeneralRegistry.getPersonal();
+    public final GeneralList LISTS = GeneralList.getPersonal();
     public final ModDefinition MOD;
+    private final GeneralList INTERNAL = GeneralList.getPersonal();
 
     private ModRegister(ModDefinition mod) {
         MOD = mod;
@@ -31,17 +34,28 @@ public class ModRegister {
         return FastFactory.newFactory(MOD, tab, defaultMaterial);
     }
 
-    public <T extends IForgeRegistryEntry<?>> void register(T object) {
+    public <T extends IForgeRegistryEntry<? super T>> void register(T object) {
         GameRegistry.register(object);
+        INTERNAL.get(object.getRegistryType()).add(object);
+    }
+
+    public void registerItemBlock(Block block) {
+        register(new ItemBlock(block).setRegistryName(block.getRegistryName()).setUnlocalizedName(block.getUnlocalizedName().substring(5)));
     }
 
     @SideOnly(Side.CLIENT)
-    public void registerItemRenderer(Item item) {
+    public void automagicallyRegisterRenderers() {
+        for (Item item : INTERNAL.get(Item.class)) registerRenderer(item);
+        for (Block block : INTERNAL.get(Block.class)) registerRenderer(block);
+    }
+
+    @SideOnly(Side.CLIENT)
+    public void registerRenderer(Item item) {
         Minecraft.getMinecraft().getRenderItem().getItemModelMesher().register(item, 0, new ModelResourceLocation(MOD.getLocation(item.getUnlocalizedName().substring(5)), "inventory"));
     }
 
     @SideOnly(Side.CLIENT)
-    public void registerBlockRenderer(Block block) {
-        registerItemRenderer(Item.getItemFromBlock(block));
+    public void registerRenderer(Block block) {
+        registerRenderer(Item.getItemFromBlock(block));
     }
 }

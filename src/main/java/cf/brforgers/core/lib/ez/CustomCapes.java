@@ -69,6 +69,7 @@ public class CustomCapes {
 		}
 	}
 
+	@SuppressWarnings("unchecked")
 	public static boolean parse(String jsonString, boolean doOverrideUsers, boolean doOverrideCapes)
 	{
 		try{

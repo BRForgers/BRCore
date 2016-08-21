@@ -24,11 +24,11 @@ public class FastFactory {
 
 	public Block newBlock(String name)
 	{
-		return new FactoryBlock(defaultMaterial).setRegistryName(texturePrefix + name).setUnlocalizedName(name).setCreativeTab(defaultTab);
+		return new FactoryBlock(defaultMaterial).setUnlocalizedName(name).setRegistryName(texturePrefix + name).setCreativeTab(defaultTab);
 	}
 
 	public Block newBlock(String name, Material material) {
-		return new FactoryBlock(material).setRegistryName(texturePrefix + name).setUnlocalizedName(name).setCreativeTab(defaultTab);
+		return new FactoryBlock(material).setUnlocalizedName(name).setRegistryName(texturePrefix + name).setCreativeTab(defaultTab);
 	}
 	
 	public <BlockType extends Block> BlockType processBlock(BlockType block, String name)
@@ -38,7 +38,7 @@ public class FastFactory {
 	
 	public Item newItem(String name)
 	{
-		return new FactoryItem().setUnlocalizedName(name).setCreativeTab(defaultTab);
+		return new FactoryItem().setUnlocalizedName(name).setRegistryName(texturePrefix + name).setCreativeTab(defaultTab);
 	}
 	
 	public <ItemType extends Item> ItemType processItem(ItemType item, String name)

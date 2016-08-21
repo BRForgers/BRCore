@@ -41,7 +41,7 @@ public class BRCore extends DummyModContainer
 
 		logger.info("CoreMod registered");
 
-		GeneralRegistry.getGlobal(ModDefinition.class).putObject("brcore", new ModDefinition(getModId(), getName(), FANCYNAME));
+		GeneralRegistry.getGlobal(ModDefinition.class).put("brcore", new ModDefinition(getModId(), getName(), FANCYNAME));
 
 		instance = this;
 	}
