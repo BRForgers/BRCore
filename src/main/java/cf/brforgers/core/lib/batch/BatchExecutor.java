@@ -17,7 +17,7 @@ public abstract class BatchExecutor extends ProfiledRunnable {
 
     /**
      * Add {@link Runnable}(s) that will be executed at least at Next Tick to the BatchRunnableExecutor<br>
-     * Also, not sure if will actually run if surpass 100000 Runnables (It might skip some to actually accelerate)
+     * Also, not sure if will actually proccessEvent if surpass 100000 Runnables (It might skip some to actually accelerate)
      */
     public void addRunnablesToNextTick(Runnable... runnables) {
         nextTickExecutions.addAll(Arrays.asList(runnables));
@@ -25,7 +25,7 @@ public abstract class BatchExecutor extends ProfiledRunnable {
 
     /**
      * Add {@link Runnable}(s) that will be executed at least at This Tick to the BatchRunnableExecutor<br>
-     * Also, not sure if will actually run if surpass 100000 Runnables (It might skip some to actually accelerate)
+     * Also, not sure if will actually proccessEvent if surpass 100000 Runnables (It might skip some to actually accelerate)
      */
     public void addRunnablesToThisTick(Runnable... runnables) {
         executions.addAll(Arrays.asList(runnables));

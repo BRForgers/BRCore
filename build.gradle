@@ -36,7 +36,7 @@ println " Minecraft: " + config.mc_version + "-" + config.forge_version
 // Setup the forge minecraft plugin data. Specify the preferred forge/minecraft version here
 minecraft {
     version = config.mc_version + "-" + config.forge_version
-    runDir = "run"
+    runDir = "proccessEvent"
 	mappings = "snapshot_20160518"
 	makeObfSourceJar = false
 }

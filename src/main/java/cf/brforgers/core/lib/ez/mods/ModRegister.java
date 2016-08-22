@@ -56,6 +56,7 @@ public class ModRegister {
 
     @SideOnly(Side.CLIENT)
     public void registerRenderer(Block block) {
+        if (Item.getItemFromBlock(block) != null)
         registerRenderer(Item.getItemFromBlock(block));
     }
 }

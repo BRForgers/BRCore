@@ -1,4 +1,4 @@
-package cf.brforgers.core.lib.ez;
+package cf.brforgers.core.lib.ez.hooks;
 
 import net.minecraft.item.ItemStack;
 
@@ -7,7 +7,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-public class EasterEggManager {
+public class DropHooks {
     private static final Map<String, List<WeightedItemStack>> drops = new HashMap<String, List<WeightedItemStack>>();
     private static final List<WeightedItemStack> dragondrops = new ArrayList<WeightedItemStack>();
 

@@ -1,11 +1,8 @@
 package cf.brforgers.core.internal;
 
-import cf.brforgers.core.lib.ez.EasterEggManager;
-import cf.brforgers.core.lib.ez.KeyBinder;
+import cf.brforgers.core.lib.ez.hooks.DropHooks;
 import cf.brforgers.core.lib.ez.hooks.IEventArmor;
-import net.minecraft.entity.Entity;
-import net.minecraft.entity.EntityList;
-import net.minecraft.entity.boss.EntityDragon;
+import cf.brforgers.core.lib.ez.hooks.KeyBinder;
 import net.minecraft.entity.item.EntityItem;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
@@ -21,35 +18,17 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
+import static cf.brforgers.core.internal.InternalHelper.getCurrentArmor;
+import static cf.brforgers.core.internal.InternalHelper.isTheDragon;
+
 public class InternalEventHandler {
     @SuppressWarnings("unchecked")
     private Map<UUID, ItemStack>[] armorMaps = new Map[]{new HashMap<UUID, ItemStack>(), new HashMap<UUID, ItemStack>(), new HashMap<UUID, ItemStack>(), new HashMap<UUID, ItemStack>()};
 
-    public static boolean isTheDragon(Entity entity) {
-        return ((entity instanceof EntityDragon) || (
-                !EntityList.getEntityString(entity).isEmpty() && (
-                        EntityList.getEntityString(entity).equals("HardcoreEnderExpansion.Dragon") ||
-                                EntityList.getEntityString(entity).equals("DraconicEvolution.EnderDragon") ||
-                                EntityList.getEntityString(entity).equals("DraconicEvolution.ChaosGuardian")
-                )
-        )
-        );
-    }
-
-    /**
-     * This will return the player armor, where [0]=> Boots and [3]=> Helmet
-     *
-     * @param player the Player
-     * @return the Armor Array
-     */
-    public static ItemStack[] getCurrentArmor(EntityPlayer player) {
-        return player.inventory.armorInventory;
-    }
-
     @SubscribeEvent
-    public void dragonDrops(LivingDropsEvent event) {
+    public void event_DropHooks_dragonDrops(LivingDropsEvent event) {
         if (!event.getEntity().worldObj.isRemote && isTheDragon(event.getEntity())) {
-            for (EasterEggManager.WeightedItemStack stack : EasterEggManager.getDragonRaw()) {
+            for (DropHooks.WeightedItemStack stack : DropHooks.getDragonRaw()) {
                 if (event.getEntity().worldObj.rand.nextInt(100) < stack.weight) {
                     int count = stack.stack.stackSize;
 
@@ -74,7 +53,7 @@ public class InternalEventHandler {
     }
 
     @SubscribeEvent
-    public void playerTick(TickEvent.PlayerTickEvent event) {
+    public void hook_IEventArmor_playerTick(TickEvent.PlayerTickEvent event) {
         if (event.player.worldObj.isRemote) return;
         EntityPlayer player = event.player;
         UUID uuid = EntityPlayer.getUUID(player.getGameProfile());
@@ -82,10 +61,10 @@ public class InternalEventHandler {
 
         for (int i = 0; i < 4; i++) {
             if (cur[i] != reg[i]) {
-                if (reg[i].getItem() instanceof IEventArmor) {
+                if (reg[i] != null && reg[i].getItem() != null && reg[i].getItem() instanceof IEventArmor) {
                     ((IEventArmor) reg[i].getItem()).onArmorUnworn(player.worldObj, player, reg[i]);
                 }
-                if (cur[i].getItem() instanceof IEventArmor) {
+                if (cur[i] != null && cur[i].getItem() != null && cur[i].getItem() instanceof IEventArmor) {
                     ((IEventArmor) cur[i].getItem()).onArmorWorn(player.worldObj, player, cur[i]);
                 }
                 armorMaps[i].put(uuid, cur[i]);
@@ -94,7 +73,7 @@ public class InternalEventHandler {
     }
 
     @SubscribeEvent
-    public void playerJoin(PlayerEvent.PlayerLoggedInEvent event) {
+    public void hook_IEventArmor_playerJoin(PlayerEvent.PlayerLoggedInEvent event) {
         if (event.player.worldObj.isRemote) return;
 
         ItemStack[] armor = getCurrentArmor(event.player);
@@ -104,12 +83,12 @@ public class InternalEventHandler {
 
 
     @SubscribeEvent
-    public void easterEggDrops(LivingDeathEvent e) {
+    public void hook_DropHooks_playerDrops(LivingDeathEvent e) {
         if (e.getEntity() instanceof EntityPlayer) {
             EntityPlayer player = (EntityPlayer) e.getEntity();
-            List<EasterEggManager.WeightedItemStack> list = EasterEggManager.getRaw(player.getDisplayNameString());
+            List<DropHooks.WeightedItemStack> list = DropHooks.getRaw(player.getDisplayNameString());
 
-            for (EasterEggManager.WeightedItemStack wstack : list) {
+            for (DropHooks.WeightedItemStack wstack : list) {
                 if (player.worldObj.rand.nextInt(100) < wstack.weight) {
                     player.dropItem(wstack.stack, true, false);
                 }
@@ -119,6 +98,11 @@ public class InternalEventHandler {
 
     @SubscribeEvent
     public void onKeyInput(InputEvent.KeyInputEvent event) {
-        KeyBinder.getInstance().run();
+        for (KeyBinder.KeyBind keyBind : KeyBinder.getKeyBinds()) {
+            if (keyBind.mapping.isPressed() != keyBind.state) {
+                keyBind.state = keyBind.mapping.isPressed();
+                keyBind.run();
+            }
+        }
     }
 }
